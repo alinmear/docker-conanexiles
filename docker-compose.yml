@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  conanexiles:
+    image: alinmear/docker-conanexiles
+    restart: always
+    expose:
+        - 7777
+        - 7778
+        - 27015
+        - 27016
+    volumes:
+        - data:/conanexiles
+
+volumes:
+    data:
+        driver: local
