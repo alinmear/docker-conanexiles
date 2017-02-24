@@ -35,14 +35,14 @@ services:
     ports:
         - 7777:7777/udp
         - 27015:27015/udp
-    kvolumes:
+    volumes:
         - /my-data:/conanexiles
 ```
 
 #### Configuration
 At this stage you have to run the container and wait, till the initialisation process is finished (steam download of the application data).
 
-NOTE: BE AWARE, that without a volume the whole data folder will be lost after container recreation, so create a volume at ALL COST.
+NOTE: BE AWARE to create a persistent data volume for `/conanexiles`; without a volume, the whole data folder will be lost after container recreation, and with it all configs and dbs.
 
 After the gameserver is started, stop it and copy your actual config to the folder `/my-data/conanexiles/ConanSandbox/Saved`.
 
