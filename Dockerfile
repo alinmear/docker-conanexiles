@@ -18,9 +18,9 @@ RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo TIMEZONE > 
 ADD files/entrypoint.sh /entrypoint.sh
 ADD files/steamcmd_setup.sh /usr/bin/steamcmd_setup
 ADD files/install.txt /install.txt
-ADD files/exilesserver_controller.sh /usr/bin/exilesserver_controller
+ADD files/conanexiles_controller.sh /usr/bin/conanexiles_controller
 
-ADD files/supervisor.conf /etc/supervisor/supervisor.conf
+ADD files/supervisord.conf /etc/supervisor/supervisord.conf
 ADD files/conanexiles.conf /etc/supervisor/conf.d/conanexiles.conf
 
 RUN chmod +x /usr/bin/steamcmd_setup /usr/bin/conanexiles_controller /entrypoint.sh

@@ -4,7 +4,8 @@ _bashrc_tag_start="# >> docker-conanexiles"
 _bashrc_tag_end="# << docker-conanexiles "
 
 setup_bashrc() {
-    cat >> /root/.bashrc <<EOF
+    cat >> /bash.bashrc <<EOF
+
 
 $_bashrc_tag_start
 export wineprefix=/wine
@@ -14,9 +15,10 @@ EOF
 }
 
 
-grep "${_bashrc_tag_start}" /root/.bashrc > /dev/null
+grep "${_bashrc_tag_start}" /etc/bash.bashrc > /dev/null
 [[ $? != 0 ]] && setup_bashrc
+
+steamcmd_setup
 
 # start supervisord
 "$@"
-

@@ -9,4 +9,5 @@ get_steamcmd_linux() {
     wget -qO- http://media.steampowered.com/installer/steamcmd_linux.tar.gz | tar -v -C /steamcmd -zx
 }
 
-[ ! -d /steamcmd ] && mkdir -p /steamcmd && get_steamcmd_linux
+[ ! -d /steamcmd ] && mkdir -p /steamcmd
+[ ! -f /steamcmd/steamcmd.sh ] && get_steamcmd_linux

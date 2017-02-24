@@ -6,9 +6,7 @@ services:
     restart: always
     expose:
         - 7777
-        - 7778
         - 27015
-        - 27016
     volumes:
         - data:/conanexiles
 
