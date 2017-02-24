@@ -4,9 +4,9 @@ services:
   conanexiles:
     image: alinmear/docker-conanexiles
     restart: always
-    expose:
-        - 7777
-        - 27015
+    ports:
+        - 7777:7777/udp
+        - 27015:27015/udp
     volumes:
         - data:/conanexiles
 

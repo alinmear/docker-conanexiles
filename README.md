@@ -15,8 +15,8 @@ services:
     image: alinmear/docker-conanexiles
     restart: always
     ports:
-        - 7777:7777
-        - 27015:27015
+        - 7777:7777/udp
+        - 27015:27015/udp
     volumes:
         - data:/conanexiles
 
@@ -33,8 +33,8 @@ services:
     image: alinmear/docker-conanexiles
     restart: always
     ports:
-        - 7777:7777
-        - 27015:27015
+        - 7777:7777/udp
+        - 27015:27015/udp
     kvolumes:
         - /my-data:/conanexiles
 ```
