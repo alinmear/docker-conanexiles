@@ -25,7 +25,7 @@ ADD files/conanexiles.conf /etc/supervisor/conf.d/conanexiles.conf
 
 RUN chmod +x /usr/bin/steamcmd_setup /usr/bin/conanexiles_controller /entrypoint.sh
 
-EXPOSE 7777 27015 
+EXPOSE 7777 27015 27016 37015 37016  
 
 VOLUME ["/conanexiles"]
 
