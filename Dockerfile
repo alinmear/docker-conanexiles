@@ -6,7 +6,7 @@ ENV TIMEZONE=Europe/Vienna DEBIAN_FRONTEND=noninteractive
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y software-properties-common python-software-properties wget unzip xvfb supervisor && \
+    apt-get install -y software-properties-common python-software-properties wget unzip xvfb supervisor crudini && \
     add-apt-repository ppa:wine/wine-builds && \
     apt-get update && \
     apt-get install --no-install-recommends --assume-yes winehq-staging && \

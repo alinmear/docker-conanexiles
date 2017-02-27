@@ -1,11 +1,71 @@
 # docker-conanexiles
 
+Features:
+* Full automatic provisioning of steam and conanexiles dedicated server
+* Autoupdate and restart of the conanexiles server
+* Full control of every config aspect via Environment variables
+* Templates for first time setup
+
+## Environment Variables and Config Options
+   A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
+   To have full control of this complex configuration situation i implemented a logic to set these values in every config files.
+
+   ConanExiles uses a common ini format. That means that a config file has the following logic:
+   [section1]
+   key1=value
+   key2=value
+   ...
+
+   [section2]
+   key1=value
+   key2=value
+   ....
+
+   ConanExiles uses the following config files:
+   * CharacterLOD.ini
+   * Compat.ini
+   * DeviceProfiles.ini
+   * EditorPerProjectUserSettings.ini
+   * Engine.ini
+   * Game.ini
+   * GameUserSettings.ini
+   * GameplayTags.ini
+   * GraniteCooked.ini
+   * GraniteCookedMod.ini
+   * Hardware.ini
+   * Input.ini
+   * Lightmass.ini
+   * Scalability.ini
+   * ServerSettings.ini
+
+   To set values an one of these ini files use the following logic to set environment variables:
+   CONANEXILES_<filename>_<section>_<key>_<value>
+
+   To set e.g. the AdminPassword use the following logic:
+   CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution (Note: The ini files is named ServerSettings.ini and the Section within the file has also the name ServerSettings)
+
+   To set e.g. the Servername and a ServerPassword:
+   CONANEXILES_Engine_OnlineSubSystemSteam_ServerName="My Cool Server"
+   CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword="MySecret"
+
+   To set e.g. the Max Number of Players:
+   This will be implemented soon, because the smart logic from above won't work. The section within the Game.ini file has the value `[/script/engine.gamesession]` which cannot be addressed via an environment variable name.
+   For now you have 2 Options to set this value. First provide at first time startup a configuration or second change it manually when the container has been initialized.
+   
+   NOTE: If an Environment Variable is set it will override the value within the specified ini file at every container startup. If an ServerAdmin manually changes values within the game, these will be lost after container restart.
+
+   other environmnent variables:
+
+   * CONANEXILES_SERVER_TYPE
+     --> **pvp**
+     --> pve
+
 ## Usage
 
 #### Get latest image
      docker pull alinmear/docker-conanexiles:latest
 
-#### Craete a `docker-compose.yml`
+#### Create a `docker-compose.yml` with a named volume
 
 ```yaml
 version: '2'
@@ -14,6 +74,10 @@ services:
   conanexiles:
     image: alinmear/docker-conanexiles
     restart: always
+    environment:
+	- "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
+	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
+	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
     ports:
         - 7777:7777/udp
         - 27015:27015/udp
@@ -25,6 +89,8 @@ volumes:
         driver: local
 ```
 
+#### Create a 'docker-compose.yml' with a volume mapping to host 
+
 ```yaml
 version: '2'
 
@@ -32,6 +98,11 @@ services:
   conanexiles:
     image: alinmear/docker-conanexiles
     restart: always
+    environment:
+	- "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
+	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
+	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+
     ports:
         - 7777:7777/udp
         - 27015:27015/udp
@@ -39,12 +110,10 @@ services:
         - /my-data:/conanexiles
 ```
 
-#### Configuration
-At this stage you have to run the container and wait, till the initialisation process is finished (steam download of the application data).
+#### FirstTime Setup
 
-NOTE: BE AWARE to create a persistent data volume for `/conanexiles`; without a volume, the whole data folder will be lost after container recreation, and with it all configs and dbs.
+     **Provide a Config**
+     If there is a folder with configurations found at /tmp/docker-conanexiles this folder will be copied to the config folder of the server. This will only happen if there is no configuration already existing (the case of a clean container initilizaton)
 
-After the gameserver is started, stop it and copy your actual config to the folder `/my-data/conanexiles/ConanSandbox/Saved`.
-
-#### Work in Progress
-When i have more time i will create a logic to set container initialisation state via env variables or a provided config directory. 
+     **Default Templates**
+     Use the environment variable CONANEXILES_SERVER_TYPE=pve to set the pve template; everything other will be the pvp template if no configuration has been provided.
