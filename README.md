@@ -64,8 +64,8 @@ For now you have 2 Options to set this value. First provide at first time startu
 * `CONANEXILES_SERVER_TYPE`  
 This Variable defines the profile for the first time setup at container provisioning, if no config folder has been provided.  
    
-==> **pvp**  
-==> pve  
+	==> **pvp**  
+	==> pve  
 
 ## Usage
 
