@@ -6,6 +6,9 @@ Features:
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
 
+Note:
+* Starting the server via wine needs several minutes (Wine 2.2, 2017-02-28). So be patient till the messages from stdout state "Server started".
+
 ## Environment Variables and Config Options
 A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
 To have full control of this complex configuration situation i implemented a logic to set these values in every config files.
