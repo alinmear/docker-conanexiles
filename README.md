@@ -109,8 +109,8 @@ services:
     restart: always
     environment:
         - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-	- "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
+        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
     ports:
         - 7777:7777/udp
         - 27015:27015/udp
