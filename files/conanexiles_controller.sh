@@ -29,11 +29,18 @@ function do_update() {
 }
 
 while true; do
-    _current_timestamp=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
-			    grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
-			    grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | \
-			    tr '[:blank:]"' ' ' | awk '{print $2}')
+    # public branch
+    # not working because timestamp is not changing with game update
+    # _current_timestamp=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
+    # 			    grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
+    # 			    grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | \
+    # 			    tr '[:blank:]"' ' ' | awk '{print $2}')
 
+    # stable branch
+    _current_timestamp=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
+			     grep -EA 1000 "^\s+\"branches\"$" | grep -EA 6 "^\s+\"stable\"$" | \
+			     grep -E "^\s+\"timeupdated\"\s+" | tr '[:blank:]"' ' ' | awk '{print $2}')
+    
     [ -f /conanexiles/lastUpdate ] && _last_timestamp=$(cat /conanexiles/lastUpdate) 
 
     if [[ $_current_timestamp > $_last_timestamp ]];then
