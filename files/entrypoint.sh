@@ -41,7 +41,7 @@ setup_server_config_first_time() {
    
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
-	mkdir -p "${_config_folder_provided}" && \
+	mkdir -p "${_config_folder}" && \
 	(cp -rv "${_config_folder_provided}/*" "${_config_folder}" && \
 	return 0 || return 1)
 
