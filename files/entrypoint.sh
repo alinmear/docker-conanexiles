@@ -232,7 +232,9 @@ function override_config() {
 	    # get value
 	    value=$(echo $env_variable | cut -d "=" -f2-)
 
-	    crudini --set "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
+	    # workaround for --set problem. Otherwise crudini will create multiple entries at container startup
+	    crudini --set --existing "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
+	    [[ $? != 0 ]] && crudini --set "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
 	done
     fi
 }
