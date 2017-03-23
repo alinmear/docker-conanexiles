@@ -1,7 +1,9 @@
 #!/bin/bash
 
-_current_timestamp=0
-_last_timestamp=0
+# _current_timestamp=0
+_current_build_id=0
+# _last_timestamp=0
+_last_build_id=0
 
 start_server() {
     supervisorctl status conanexilesServer | grep RUNNING > /dev/null
@@ -25,25 +27,26 @@ function do_update() {
 	sleep 1
     done
 
-    echo $_current_timestamp > /conanexiles/lastUpdate
+    # echo $_current_timestamp > /conanexiles/lastUpdate
+    echo $_current_build_id > /conanexiles/lastUpdate
 }
 
 while true; do
-    # public branch
-    # not working because timestamp is not changing with game update
     # _current_timestamp=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
-    # 			    grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
-    # 			    grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | \
-    # 			    tr '[:blank:]"' ' ' | awk '{print $2}')
+    			    # grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
+    			    # grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"timeupdated\"\s+" | \
+    			    # tr '[:blank:]"' ' ' | awk '{print $2}')
 
-    # stable branch
-    _current_timestamp=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
-			     grep -EA 1000 "^\s+\"branches\"$" | grep -EA 6 "^\s+\"stable\"$" | \
-			     grep -E "^\s+\"timeupdated\"\s+" | tr '[:blank:]"' ' ' | awk '{print $2}')
+    _current_build_id=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print 443030 +quit | \
+    			    grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
+    			    grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"buildid\"\s+" | \
+    			    tr '[:blank:]"' ' ' | awk '{print $2}')
     
-    [ -f /conanexiles/lastUpdate ] && _last_timestamp=$(cat /conanexiles/lastUpdate) 
+    # [ -f /conanexiles/lastUpdate ] && _last_timestamp=$(cat /conanexiles/lastUpdate) 
+    [ -f /conanexiles/lastUpdate ] && _last_build_id=$(cat /conanexiles/lastUpdate) 
 
-    if [[ $_current_timestamp > $_last_timestamp ]];then
+    # if [[ $_current_timestamp > $_last_timestamp ]];then
+    if [[ $_current_build_id != $_last_build_id ]];then
 	do_update
     fi
 
