@@ -2,6 +2,9 @@
 APPID=443030
 
 function get_available_build() {
+    # clear appcache (to avoid reading infos from cache)
+    rm -rf /root/Steam/appcache
+
     # get available build id and return it
     local _build_id=$(/steamcmd/steamcmd.sh +login anonymous +app_info_update 1 +app_info_print $APPID +quit | \
     			    grep -EA 1000 "^\s+\"branches\"$" | grep -EA 5 "^\s+\"public\"$" | \
@@ -102,5 +105,5 @@ while true; do
     [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && do_update
 
     start_server
-    sleep 60
+    sleep 300
 done
