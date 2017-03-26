@@ -39,8 +39,8 @@ function update_server() {
 
 function backup_server() {
     # backup the server db and config
-    local _src = "/conanexiles/ConanSandbox/Saved"
-    local _dst = "/conanexiles/ConanSandbox/Saved.$(get_installed_build)"
+    local _src="/conanexiles/ConanSandbox/Saved"
+    local _dst="/conanexiles/ConanSandbox/Saved.$(get_installed_build)"
 
     # remove backup dir if already exists (should never happen)
     if [ -d "$_dst" ]; then
@@ -66,7 +66,6 @@ function do_update() {
     stop_server
     backup_server
     update_server
-    start_server
         
     # wait till update is finished
     while $(supervisorctl status conanexilesUpdate | grep RUNNING > /dev/null); do
@@ -74,14 +73,16 @@ function do_update() {
     done
 
     # check if server is up to date
-    local _ab = $(get_available_build)
-    local _ib = $(get_installed_build)
+    local _ab=$(get_available_build)
+    local _ib=$(get_installed_build)
 
     if [[ $_ab != $_ib ]];then
         echo "Warning: Update seems to have failed. Installed build ($_ib) does not match available build ($_ab)."
     else
         echo "Info: Updated to build ($_ib) successfully."
     fi
+
+    start_server
 }
 
 #
@@ -89,8 +90,8 @@ function do_update() {
 #
 while true; do
     # check if an update is needed
-    ab = $(get_available_build)
-    ib = $(get_installed_build)
+    ab=$(get_available_build)
+    ib=$(get_installed_build)
 
     if [[ $ab != $ib ]];then
         echo "Info: New build available. Updating $ib -> $ab"
