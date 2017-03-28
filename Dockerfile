@@ -13,7 +13,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /etc/supervisor/conf.d
     
-RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo TIMEZONE > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo $TIMEZONE > /etc/timezone
 
 ADD files/entrypoint.sh /entrypoint.sh
 ADD files/steamcmd_setup.sh /usr/bin/steamcmd_setup
