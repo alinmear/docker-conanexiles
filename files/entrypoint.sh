@@ -248,5 +248,11 @@ setup_server_config_first_time
 
 override_config
 
+# start Xvfb
+xvfb_display=0
+rm -rf /tmp/.X$xvfb_display-lock
+Xvfb :$xvfb_display -screen 0, 640x480x24:32 -nolisten tcp &
+export DISPLAY=:$xvfb_display
+
 # start supervisord
 "$@"

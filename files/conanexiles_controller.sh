@@ -23,6 +23,12 @@ function get_installed_build() {
 }
 
 function start_server() {
+    # check if server is already running to avoid running it more than one time
+    if ps axg | grep -F 'ConanSandboxServer' | grep -v -F 'grep' > /dev/null; then
+        echo "Error: The server is already running. I don't want to start it twice."
+        return
+    fi
+
     # start the server
     supervisorctl status conanexilesServer | grep RUNNING > /dev/null
     [[ $? != 0 ]] && supervisorctl start conanexilesServer
@@ -32,6 +38,12 @@ function stop_server() {
     # stop the server
     supervisorctl status conanexilesServer | grep RUNNING > /dev/null
     [[ $? == 0 ]] && supervisorctl stop conanexilesServer
+
+    # wait until the server process is gone
+    while ps axg | grep -F 'ConanSandboxServer' | grep -v -F 'grep' > /dev/null; do 
+      echo "Error: Seems I can't stop the server. Help me!"
+      sleep 5
+    done
 }
 
 function update_server() {
