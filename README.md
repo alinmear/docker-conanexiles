@@ -2,7 +2,7 @@
 
 Features:
 * Full automatic provisioning of steam and conanexiles dedicated server
-* Autoupdate and restart of the conanexiles server
+* Autoupdate and restart of the conanexiles server (Now working, thx for contribution @kijdam) 
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
 
@@ -89,7 +89,7 @@ services:
         - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
     ports:
         - 7777:7777/udp
-	- 7778:7778/udp
+        - 7778:7778/udp
         - 27015:27015/udp
     volumes:
         - data:/conanexiles
@@ -114,7 +114,7 @@ services:
         - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
     ports:
         - 7777:7777/udp
-	- 7778:7778/udp
+        - 7778:7778/udp
         - 27015:27015/udp
     volumes:
         - /my-data:/conanexiles
