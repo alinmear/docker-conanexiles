@@ -1,5 +1,7 @@
 # docker-conanexiles
 
+![Docker Pulls](https://img.shields.io/docker/pulls/alinmear/docker-conanexiles.svg?style=flat)
+
 Features:
 * Full automatic provisioning of steam and conanexiles dedicated server
 * Autoupdate and restart of the conanexiles server (Now working, thx for contribution @kijdam) 
