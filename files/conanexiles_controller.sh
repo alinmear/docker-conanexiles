@@ -104,17 +104,21 @@ function do_update() {
 # Main loop
 #
 while true; do
-    # check if an update is needed
-    ab=$(get_available_build)
-    ib=$(get_installed_build)
+    PLAYERS=$(cat /conanexiles/ConanSandbox/Saved/Logs/ConanSandbox.log | grep players= | tail -1 | sed 's/.*players=//' | sed 's/&.*//')
 
-    if [[ $ab != $ib ]];then
-        echo "Info: New build available. Updating $ib -> $ab"
-        do_update
+    if [[ $PLAYERS == 0 ]]; then
+        # check if an update is needed
+        ab=$(get_available_build)
+        ib=$(get_installed_build)
+
+        if [[ $ab != $ib ]];then
+            echo "Info: New build available. Updating $ib -> $ab"
+            do_update
+        fi
+
+        # if initial install/update fails try again
+        [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && do_update
     fi
-
-    # if initial install/update fails try again
-    [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && do_update
 
     start_server
     sleep 300
