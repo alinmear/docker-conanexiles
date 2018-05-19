@@ -8,10 +8,12 @@ services:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+      - "RCON_PASSWORD=MyRconPassword"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp
         - 27015:27015/udp
+        - 25575:25575/tcp
     volumes:
         - data:/conanexiles
 
