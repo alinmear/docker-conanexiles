@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /var/lib/conanexiles/redis_cmds.sh
+
 # defaults
 _config_folder="/conanexiles/ConanSandbox/Saved/Config/WindowsServer"
 _config_folder_provided="/tmp/docker-conanexiles"
@@ -26,6 +28,12 @@ Scalability|\
 ServerSettings\
 "
 
+init_master_server_instance() {
+    #get_master_server_instance 2>&1 > /dev/null
+    #[ $? = 1 ] && set_master_server_instance
+    [[ $MASTER_SERVER_INSTANCE == 1 ]] && set_master_server_instance
+}
+
 setup_bashrc() {
     cat >> /bash.bashrc <<EOF
 
@@ -38,7 +46,7 @@ EOF
 }
 
 setup_server_config_first_time() {
-   
+
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
 	mkdir -p "${_config_folder}" && \
@@ -239,11 +247,14 @@ function override_config() {
     fi
 }
 
+init_master_server_instance
 
 grep "${_bashrc_tag_start}" /etc/bash.bashrc > /dev/null
 [[ $? != 0 ]] && setup_bashrc
 
+# Initial Installation
 steamcmd_setup
+
 setup_server_config_first_time
 
 override_config

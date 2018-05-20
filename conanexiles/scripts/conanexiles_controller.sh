@@ -1,4 +1,7 @@
 #!/bin/bash
+
+source /var/lib/conanexiles/redis_cmds.sh
+
 APPID=443030
 
 function get_available_build() {
@@ -78,10 +81,11 @@ function backup_server() {
 
 function do_update() {
     # stop, backup, update and start again the server
+    set_update_running_start
     stop_server
     backup_server
     update_server
-        
+
     # wait till update is finished
     while $(supervisorctl status conanexilesUpdate | grep RUNNING > /dev/null); do
         sleep 1
@@ -97,25 +101,41 @@ function do_update() {
         echo "Info: Updated to build ($_ib) successfully."
     fi
 
+    set_update_running_stop
+
     start_server
 }
 
 #
 # Main loop
 #
-while true; do
-    # check if an update is needed
-    ab=$(get_available_build)
-    ib=$(get_installed_build)
 
-    if [[ $ab != $ib ]];then
-        echo "Info: New build available. Updating $ib -> $ab"
-        do_update
-    fi
+echo "Master Server: `get_master_server_instance`"
 
-    # if initial install/update fails try again
-    [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && do_update
+if [[ "`get_master_server_instance`" == "`hostname`" ]];then
+    while true; do
+        echo "Mode: Master - Instance: `hostname`"
+        # check if an update is needed
+        ab=$(get_available_build)
+        ib=$(get_installed_build)
 
-    start_server
-    sleep 300
-done
+        if [[ $ab != $ib ]];then
+            echo "Info: New build available. Updating $ib -> $ab"
+            do_update
+        fi
+
+        # if initial install/update fails try again
+        [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && \
+            set_initial_install_stat_fail && \
+            do_update && \
+            set_initial_install_stat_success
+
+        start_server
+        sleep 300
+    done
+else
+    while true; do
+        echo "Mode: Slave - Instance: `hostname`"
+        sleep 300
+    done
+fi
