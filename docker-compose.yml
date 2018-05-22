@@ -9,6 +9,7 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "RCON_PASSWORD=MyRconPassword"
+#      - "DISCORD_WEBHOOK=https://discordapp.com/api/webhooks/aaa/bbb"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp

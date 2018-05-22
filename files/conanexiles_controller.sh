@@ -100,6 +100,17 @@ function do_update() {
     start_server
 }
 
+function rcon() {
+    mcrcon -c -H 127.0.0.1 -P 25575 -p $RCON_PASSWORD "$1"
+}
+
+function discord_post() {
+    curl --header "Content-Type: application/json" \
+         --request POST \
+         --data '{"content":"'"$1"'"}' \
+         $DISCORD_WEBHOOK
+}
+
 #
 # Main loop
 #
@@ -108,22 +119,23 @@ while true; do
     ab=$(get_available_build)
     ib=$(get_installed_build)    
 
+    REPORT=$(tail -1000 /conanexiles/ConanSandbox/Saved/Logs/ConanSandbox.log | grep players= | tail -1)
+    PLAYERS=$(echo $REPORT | sed 's/.*players=//' | sed 's/&.*//')
+
     if [[ $ab != $ib ]]; then
         echo "Info: New build available. Updating $ib -> $ab"
-        mcrcon -c -H 127.0.0.1 -P 25575 -p $RCON_PASSWORD "broadcast New update released. Restarting in 5 minutes!"
-        sleep 300
+        discord_post "New game update released! Updating $ib -> $ab"
+        if [[ $PLAYERS > 0 ]]; then
+            rcon "broadcast New update released. Restarting in 5 minutes!"
+            sleep 300
+        fi
         do_update
-    else
-        REPORT=$(tail -1000 /conanexiles/ConanSandbox/Saved/Logs/ConanSandbox.log | grep players= | tail -1)
-        PLAYERS=$(echo $REPORT | sed 's/.*players=//' | sed 's/&.*//')
+    elif [[ $PLAYERS == 0 ]] || [[ -z "${PLAYERS}" ]]; then
+        UPTIME=$(echo $REPORT | sed 's/.*uptime=//' | sed 's/&.*//')
 
-        if [[ $PLAYERS == 0 ]] || [[ -z "${PLAYERS}" ]]; then
-            UPTIME=$(echo $REPORT | sed 's/.*uptime=//' | sed 's/&.*//')
-
-            if [[ $UPTIME > 86400 ]]; then
-                echo "Info: Over 1 day uptime. Restarting."
-                stop_server
-            fi
+        if [[ $UPTIME > 86400 ]]; then
+            echo "Info: Over 1 day uptime. Restarting."
+            stop_server
         fi
     fi
     
