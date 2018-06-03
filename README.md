@@ -35,9 +35,9 @@ We can create an architecture like this:
 
 The Master-Server is taking care about the binaries, more precisley keeping it up to date. If there is a new update, the master server will notify the Slave-Servers for shutting down to make the update. Afterwards the master informs the Slave-Servers to spin up again.
 
-*NOTE*: The should always be only 1 Master-Server-Instance, otherwise it could break your setup, if two master server are updating at the same time.
+**NOTE**: The should always be only 1 Master-Server-Instance, otherwise it could break your setup, if two master server are updating at the same time.
 
-!! STANDARD-Behaviour: The Docker Image itself sets der master-server value to 1, which means that each server is a master server. For a multi instance setup you have to explicit set CONANEXILES_MASTERSERVER=0. You also have to specify the CONANEXILES_INSTANCENAME, otherwise your instances would write changes into the same db --> kaboom.
+!! **STANDARD-Behavior**: The Docker Image itself sets der master-server value to 1, which means that each server is a master server. For a multi instance setup you have to explicit set CONANEXILES_MASTERSERVER=0. You also have to specify the CONANEXILES_INSTANCENAME, otherwise your instances would write changes into the same db --> kaboom.
 
 ENV-VARS to Setup:
 
