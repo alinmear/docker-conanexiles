@@ -8,7 +8,7 @@ services:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-      - "CONANEXILES_INSTANCENAME=exiles-a"
+      - "CONANEXILES_INSTANCENAME=exiles0"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp
@@ -24,7 +24,7 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_MASTERSERVER=0"
-      - "CONANEXILES_INSTANCENAME=exilesb"
+      - "CONANEXILES_INSTANCENAME=exiles1"
     ports:
         - 7779:7777/udp
         - 27017:27015/udp
@@ -48,7 +48,6 @@ services:
 
   redis:
     image: redis:alpine
-    #command: ["redis-server", "--appendonly", "no"]
     restart: always
 
 volumes:
