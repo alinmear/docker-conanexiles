@@ -1,19 +1,54 @@
 version: '2'
 
 services:
-  conanexiles:
+  conanexiles0:
     image: alinmear/docker-conanexiles
     restart: always
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+      - "CONANEXILES_INSTANCENAME=exiles0"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp
         - 27015:27015/udp
     volumes:
         - data:/conanexiles
+
+  conanexiles1:
+    image: alinmear/docker-conanexiles
+    restart: always
+    environment:
+      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+      - "CONANEXILES_MASTERSERVER=0"
+      - "CONANEXILES_INSTANCENAME=exiles1"
+    ports:
+        - 7779:7777/udp
+        - 27017:27015/udp
+    volumes:
+        - data:/conanexiles
+
+  conanexiles2:
+    image: alinmear/docker-conanexiles
+    restart: always
+    environment:
+      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+      - "CONANEXILES_MASTERSERVER=0"
+      - "CONANEXILES_INSTANCENAME=exiles2"
+    ports:
+        - 7780:7777/udp
+        - 27018:27015/udp
+    volumes:
+        - data:/conanexiles
+
+  redis:
+    image: redis:alpine
+    restart: always
 
 volumes:
     data:

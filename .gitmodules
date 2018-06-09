@@ -1,0 +1,3 @@
+[submodule "conanexiles/helpers/redi.sh"]
+	path = conanexiles/helpers/redi.sh
+	url = https://github.com/crypt1d/redi.sh.git
