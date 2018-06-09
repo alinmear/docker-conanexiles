@@ -12,6 +12,10 @@ Features:
 * Templates for first time setup
 * Running multiple Instances with multiple config directories
 
+## New Versioning introduced
+
+NOTE: After PR #12 i introduced versioning for this project. Before the pr we have the version 0.0. With the new multi instance setup (#12) we have the version 1.0.
+
 ## Multi Instance Setup
 
 It is now possible to run multiple Server Instances with 1 Server Installation. For better understanding we have to split a conan-exiles installation into two parts: 
