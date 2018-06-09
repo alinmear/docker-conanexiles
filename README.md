@@ -13,6 +13,10 @@ Features:
 
 **Note**: *Starting the server via wine needs several minutes (Wine 2.2, 2017-02-28). So be patient till the messages from stdout state "Server started".*
 
+## New Versioning introduced
+
+NOTE: After PR #12 i introduced versioning for this project. Before the pr we have the version 0.0. With the new multi instance setup (#12) we have the version 1.0.
+
 ## Environment Variables and Config Options
 A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
 To have full control of this complex configuration situation i implemented a logic to set these values in every config files.
