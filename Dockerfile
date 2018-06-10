@@ -27,6 +27,7 @@ ADD conanexiles/helpers/redi.sh/redi.sh /usr/bin/redi.sh
 
 RUN mkdir -p /var/lib/conanexiles
 ADD conanexiles/lib/redis_cmds.sh /var/lib/conanexiles/redis_cmds.sh
+ADD conanexiles/lib/notifier.sh /var/lib/conanexiles/notifier.sh
 
 RUN chmod +x /usr/bin/steamcmd_setup /usr/bin/conanexiles_controller /entrypoint.sh /usr/bin/redi.sh
 

@@ -10,14 +10,6 @@ get_update_running(){
     redi.sh -g update_running -H redis
 }
 
-set_initial_install_stat_success(){
-    echo 0 | redi.sh -s initial_installation -H redis
-}
-
-set_initial_install_stat_fail(){
-    echo 1 | redi.sh -s initial_installation -H redis
-}
-
 get_initial_install_stat(){
     redi.sh -g initial_installation -H redis
 }

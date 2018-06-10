@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source /var/lib/conanexiles/redis_cmds.sh
+source /var/lib/conanexiles/notifier.sh
 
 APPID=443030
 
@@ -36,7 +37,7 @@ check_server_running() {
 function start_server() {
     # check if server is already running to avoid running it more than one time
     if [[ `check_server_running` == 0 ]];then
-        echo "Error: The server is already running. I don't want to start it twice."
+        notfier_error "The server is already running. I don't want to start it twice."
         return
     else
         supervisorctl status conanexilesServer | grep RUNNING > /dev/null
@@ -51,7 +52,7 @@ function stop_server() {
 
     # wait until the server process is gone
     while ps axg | grep -F 'ConanSandboxServer' | grep -v -F 'grep' > /dev/null; do 
-      echo "Error: Seems I can't stop the server. Help me!"
+      notifier_error "Seems I can't stop the server. Help me!"
       sleep 5
     done
 }
@@ -70,7 +71,7 @@ function backup_server() {
     # remove backup dir if already exists (should never happen)
     if [ -d "$_dst" ]; then
         rm -rf "$_dst"
-        echo "Info: Removed existing build backup in $_dst"
+        notifier_info "Removed existing build backup in $_dst"
     fi
 
     # backup current build db and config
@@ -79,9 +80,9 @@ function backup_server() {
 
         # Was backup successfull ?
         if [ $? -eq 0 ]; then
-            echo "Info: Backed up current build db and configs to $_dst"
+            notifier_info "Backed up current build db and configs to $_dst"
         else
-            echo "Warning: Failed to backup current build db and configs to $_dst."
+            notifier_warn "Failed to backup current build db and configs to $_dst."
         fi
     fi
 }
@@ -122,28 +123,29 @@ function do_update() {
 echo "Global Master Server Instance: `get_master_server_instance`"
 
 if [[ "`get_master_server_instance`" == "`hostname`" ]];then
-    echo "Mode: Master - Instance: `hostname`"
+    notifier_info "Mode: Master - Instance: `hostname`"
     while true; do
         # check if an update is needed
         ab=$(get_available_build)
         ib=$(get_installed_build)
 
         if [[ $ab != $ib ]];then
-            echo "Info: New build available. Updating $ib -> $ab"
+            notifier_info "New build available. Updating $ib -> $ab"
             do_update
         fi
 
         # if initial install/update fails try again
-        [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] && \
-            set_initial_install_stat_fail && \
-            do_update && \
-            set_initial_install_stat_success
+        if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ]; then
+            notifier_warn "Initial installation failed. Trying to install/update again"
+            do_update
+            notifier_debug "Initial installation finished."
+        fi
 
         start_server
         sleep 300
     done
 else
-    echo "Mode: Slave - Instance: `hostname`"
+    notifier_info "Mode: Slave - Instance: `hostname`"
     while true; do
         if [[ "`get_update_running`" == 0 ]]; then
             [[ `check_server_running` == 0 ]] && \
