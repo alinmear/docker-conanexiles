@@ -56,10 +56,6 @@ ENV-VARS to Setup:
 Default: CONANEXILES_MASTERSERVER = 1 (only the master server is able to make updates)
 Default: CONANEXILES_INSTANCENAME = saved (the default config folder name)
 
-## New Versioning introduced
-
-NOTE: After PR #12 i introduced versioning for this project. Before the pr we have the version 0.0. With the new multi instance setup (#12) we have the version 1.0.
-
 ## Environment Variables and Config Options
 A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
 To have full control of this complex configuration situation i implemented a logic to set these values in every config files.
