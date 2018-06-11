@@ -53,6 +53,9 @@ EOF
 
 setup_server_config_first_time() {
 
+    # Check if instance nanme given
+    [[ "${CONANEXILES_INSTANCENAME}" != 'Saved' ]] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
 	mkdir -p "${_config_folder}" && \
