@@ -9,6 +9,11 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_INSTANCENAME=exiles0"
+      - "CONANEXILES_CMDSWITCHES=-RconEnabled=1 -RconPassword=REDACTED -RconPort=25575"
+      - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
+      - "CONANEXILES_Game_RconPlugin_RconPassword=REDACTED"
+      - "CONANEXILES_Game_RconPlugin_RconPort=25575"
+      - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp

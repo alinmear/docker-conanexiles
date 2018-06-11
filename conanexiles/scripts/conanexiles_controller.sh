@@ -87,13 +87,27 @@ function backup_server() {
     fi
 }
 
+start_update_timer() {
+    _t_val="$1"
+    _i=0
+
+    while true; do
+        if [ $_i == $_t_val ]; then
+            break
+        fi
+        echo "/usr/bin/rconcli broadcast --type shutdown --value $((_t_val - _i))"
+        ((i++))
+    done
+}
+
 function do_update() {
     # stop, backup, update and start again the server
+    start_update_timer
+
     set_update_running_start
     stop_server
     # Give other instances time to shutdown
-    sleep 300
-    backup_server
+    sleep 300    backup_server
     update_server
 
     # wait till update is finished
