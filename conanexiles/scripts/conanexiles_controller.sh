@@ -87,7 +87,7 @@ function backup_server() {
     fi
 }
 
-start_update_timer() {
+start_shutdown_timer() {
     _t_val="$1"
     _i=0
 
@@ -95,19 +95,25 @@ start_update_timer() {
         if [ $_i == $_t_val ]; then
             break
         fi
-        echo "/usr/bin/rconcli broadcast --type shutdown --value $((_t_val - _i))"
-        ((i++))
+
+        notifier_debug "Shutdown Server in $((_t_val - _i)) minutes"
+
+        if [[ ${CONANEXILES_Game_RconPlugin_RconEnabled} == 1 ]]; then
+            /usr/bin/rconcli broadcast --type shutdown --value $((_t_val - _i))
+        fi
+        sleep 60
+        ((_i++))
     done
 }
 
 function do_update() {
     # stop, backup, update and start again the server
-    start_update_timer
-
     set_update_running_start
+    start_shutdown_timer 15
     stop_server
     # Give other instances time to shutdown
-    sleep 300    backup_server
+    sleep 300
+    backup_server
     update_server
 
     # wait till update is finished
@@ -162,8 +168,10 @@ else
     notifier_info "Mode: Slave - Instance: `hostname`"
     while true; do
         if [[ "`get_update_running`" == 0 ]]; then
-            [[ `check_server_running` == 0 ]] && \
+            if [[ `check_server_running` == 0 ]]; then
+                start_shutdown_timer 10
                 stop_server
+            fi
         else
             [[ `check_server_running` == 1 ]] && \
                 start_server
