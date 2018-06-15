@@ -11,6 +11,8 @@ Features:
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
 * Running multiple Instances with multiple config directories
+* RCON Support (Ingame Broadcast Msgs for Server events like update) --> DEFAULT ENABLED
+
 
 ## New Versioning introduced
 
@@ -141,6 +143,11 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_INSTANCENAME=exiles0"
+      - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
+      - "CONANEXILES_Game_RconPlugin_RconPassword=MyPassword"
+      - "CONANEXILES_Game_RconPlugin_RconPort=25575"
+      - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
+
     ports:
         - 7777:7777/udp
         - 7778:7778/udp
@@ -157,6 +164,7 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_MASTERSERVER=0"
       - "CONANEXILES_INSTANCENAME=exiles1"
+      - "CONANEXILES_Game_RconPlugin_RconEnabled=0" # disable rcon
     ports:
         - 7779:7777/udp
         - 27017:27015/udp
