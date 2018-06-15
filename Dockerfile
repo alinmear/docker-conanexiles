@@ -2,7 +2,14 @@ FROM ubuntu:xenial
 
 MAINTAINER Paul Steinlechner
 
-ENV TIMEZONE=Europe/Vienna DEBIAN_FRONTEND=noninteractive CONANEXILES_MASTERSERVER=1 CONANEXILES_INSTANCENAME=saved
+ENV TIMEZONE=Europe/Vienna DEBIAN_FRONTEND=noninteractive \
+CONANEXILES_MASTERSERVER=1 \
+CONANEXILES_INSTANCENAME=saved \
+CONANEXILES_Game_RconPlugin_RconEnabled=1 \
+CONANEXILES_Game_RconPlugin_RconPassword=Password \
+CONANEXILES_Game_RconPlugin_RconPort=25575 \
+CONANEXILES_Game_RconPlugin_RconMaxKarma=60
+
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
