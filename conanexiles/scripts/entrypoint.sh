@@ -29,12 +29,21 @@ ServerSettings\
 "
 
 init_master_server_instance() {
-    [[ $CONANEXILES_MASTERSERVER == 1 ]] && set_master_server_instance
+    [[ $CONANEXILES_MASTERSERVER == 1 ]] && redis_cmd_proxy redis_set_master_server_instance
 }
 
 init_supervisor_conanexiles_cmd() {
     _target="/etc/supervisor/conf.d/conanexiles.conf"
 
+    # set default cmdswitch
+    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/Binaries\/Win64\/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log/" -i "${_target}"
+
+    # add usedir switch if instancename given
+    if [ ! -z "${CONANEXILES_INSTANCENAME}" ]; then
+        sed -E "s/(command=wine64.*)/\1 -userdir=%(ENV_CONANEXILES_INSTANCENAME)s/" -i "${_target}"
+    fi
+
+    # add additional cmdline switches 
     if [ ! -z "${CONANEXILES_CMDSWITCHES}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_CMDSWITCHES}/" -i "${_target}"
     fi
@@ -54,7 +63,7 @@ EOF
 setup_server_config_first_time() {
 
     # Check if instance nanme given
-    [[ "${CONANEXILES_INSTANCENAME}" != 'Saved' ]] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+    [ ! -z "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
 
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \

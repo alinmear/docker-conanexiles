@@ -107,14 +107,19 @@ start_shutdown_timer() {
 }
 
 function do_update() {
+    # This function take either 0 for update with sleep, or 1 for update without sleep and backup
     # stop, backup, update and start again the server
-    set_update_running_start
-    start_shutdown_timer 15
-    stop_server
-    # Give other instances time to shutdown
-    sleep 300
-    backup_server
-    update_server
+    redis_cmd_proxy redis_set_update_running_start
+    if [[ $1 == 1 ]];then
+        update_server
+    else
+        start_shutdown_timer 15
+        stop_server
+        # Give other instances time to shutdown
+        sleep 300
+        backup_server
+        update_server
+    fi
 
     # wait till update is finished
     while $(supervisorctl status conanexilesUpdate | grep RUNNING > /dev/null); do
@@ -131,43 +136,43 @@ function do_update() {
         echo "Info: Updated to build ($_ib) successfully."
     fi
 
-    set_update_running_stop
+    redis_cmd_proxy redis_set_update_running_stop
 
     start_server
 }
 
-#
-# Main loop
-#
+start_master_loop() {
 
-echo "Global Master Server Instance: `get_master_server_instance`"
-
-if [[ "`get_master_server_instance`" == "`hostname`" ]];then
     notifier_info "Mode: Master - Instance: `hostname`"
+
     while true; do
+        # if initial install/update fails try again
+        if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ]; then
+            notifier_warn "No binaries found. Doing a fresh installation"
+            do_update 1
+            notifier_debug "Initial installation finished."
+        fi
+
         # check if an update is needed
         ab=$(get_available_build)
         ib=$(get_installed_build)
 
         if [[ $ab != $ib ]];then
             notifier_info "New build available. Updating $ib -> $ab"
-            do_update
-        fi
-
-        # if initial install/update fails try again
-        if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ]; then
-            notifier_warn "Initial installation failed. Trying to install/update again"
-            do_update
-            notifier_debug "Initial installation finished."
+            do_update 0
         fi
 
         start_server
         sleep 300
     done
-else
+}
+
+start_slave_loop() {
+
     notifier_info "Mode: Slave - Instance: `hostname`"
+
     while true; do
-        if [[ "`get_update_running`" == 0 ]]; then
+        if [[ "`redis_cmd_proxy redis_get_update_running`" == 0 ]]; then
             if [[ `check_server_running` == 0 ]]; then
                 start_shutdown_timer 10
                 stop_server
@@ -178,4 +183,17 @@ else
         fi
         sleep 10
     done
+}
+
+#
+# Main loop
+#
+
+# notifier_info "Global Master Server Instance: `get_master_server_instance`"
+
+# if [[ "`get_master_server_instance`" == "`hostname`" ]];then
+if [[ "${CONANEXILES_MASTERSERVER}" == 1 ]]; then
+    start_master_loop
+else
+    start_slave_loop
 fi
