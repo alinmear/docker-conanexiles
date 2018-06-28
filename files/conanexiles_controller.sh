@@ -121,22 +121,30 @@ while true; do
 
     REPORT=$(tail -1000 /conanexiles/ConanSandbox/Saved/Logs/ConanSandbox.log | grep players= | tail -1)
     PLAYERS=$(echo $REPORT | sed 's/.*players=//' | sed 's/&.*//')
+    UPTIME=$(echo $REPORT | sed 's/.*uptime=//' | sed 's/&.*//')
+
+    if [[ -z "$OLD_UPTIME" ]]; then
+        OLD_UPTIME=$UPTIME
+    fi
 
     if [[ $ab != $ib ]]; then
         echo "Info: New build available. Updating $ib -> $ab"
         discord_post "New game update released! Updating $ib -> $ab"
-        if [[ $PLAYERS > 0 ]]; then
+        if (( $PLAYERS > 0 )); then
             rcon "broadcast New update released. Restarting in 5 minutes!"
             sleep 300
         fi
         do_update
-    elif [[ $PLAYERS == 0 ]] || [[ -z "${PLAYERS}" ]]; then
-        UPTIME=$(echo $REPORT | sed 's/.*uptime=//' | sed 's/&.*//')
+    elif [[ $UPTIME != $OLD_UPTIME ]]; then
 
-        if [[ $UPTIME > 86400 ]]; then
-            echo "Info: Over 1 day uptime. Restarting."
+        if (( $UPTIME > 86400 )); then
+            rcon "broadcast Over 24 hours uptime. Restarting in 5 minutes"
+            echo "Info: Over 24 hours uptime. Restarting."
+            sleep 300
             stop_server
         fi
+
+        OLD_UPTIME=$UPTIME
     fi
     
     # if initial install/update fails try again
