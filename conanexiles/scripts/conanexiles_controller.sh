@@ -141,6 +141,19 @@ function do_update() {
     start_server
 }
 
+function rcon() {
+    if [[ ${CONANEXILES_Game_RconPlugin_RconEnabled} == 1 ]]; then
+        mcrcon -c -H 127.0.0.1 -P 25575 -p ${CONANEXILES_Game_RconPlugin_RconPassword} "$1"
+    fi
+}
+
+function discord_post() {
+    curl --header "Content-Type: application/json" \
+         --request POST \
+         --data '{"content":"'"$1"'"}' \
+         $DISCORD_WEBHOOK
+}
+
 start_master_loop() {
 
     notifier_info "Mode: Master - Instance: `hostname`"
@@ -153,13 +166,30 @@ start_master_loop() {
             notifier_debug "Initial installation finished."
         fi
 
+        REPORT=$(tail -1000 /conanexiles/ConanSandbox/Saved/Logs/ConanSandbox.log | grep players= | tail -1)
+        PLAYERS=$(echo $REPORT | sed 's/.*players=//' | sed 's/&.*//')
+        UPTIME=$(echo $REPORT | sed 's/.*uptime=//' | sed 's/&.*//')
+
+        if [[ -z "$OLD_UPTIME" ]]; then
+            OLD_UPTIME=$UPTIME
+        fi
+
         # check if an update is needed
         ab=$(get_available_build)
         ib=$(get_installed_build)
 
         if [[ $ab != $ib ]];then
             notifier_info "New build available. Updating $ib -> $ab"
+            discord_post "New game update released! Updating $ib -> $ab"
             do_update 0
+        elif [[ $UPTIME != $OLD_UPTIME ]]; then
+            if (( $UPTIME > 86400 )); then
+                rcon "broadcast Over 24 hours uptime. Restarting in 5 minutes"
+                echo "Info: Over 24 hours uptime. Restarting."
+                sleep 300
+                stop_server
+            fi
+            OLD_UPTIME=$UPTIME
         fi
 
         start_server
