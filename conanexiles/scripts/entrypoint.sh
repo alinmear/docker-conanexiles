@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /var/lib/conanexiles/redis_cmds.sh
+
 # defaults
 _config_folder="/conanexiles/ConanSandbox/Saved/Config/WindowsServer"
 _config_folder_provided="/tmp/docker-conanexiles"
@@ -26,6 +28,27 @@ Scalability|\
 ServerSettings\
 "
 
+init_master_server_instance() {
+    [[ $CONANEXILES_MASTERSERVER == 1 ]] && redis_cmd_proxy redis_set_master_server_instance
+}
+
+init_supervisor_conanexiles_cmd() {
+    _target="/etc/supervisor/conf.d/conanexiles.conf"
+
+    # set default cmdswitch
+    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/Binaries\/Win64\/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log/" -i "${_target}"
+
+    # add usedir switch if instancename given
+    if [ ! -z "${CONANEXILES_INSTANCENAME}" ]; then
+        sed -E "s/(command=wine64.*)/\1 -userdir=%(ENV_CONANEXILES_INSTANCENAME)s/" -i "${_target}"
+    fi
+
+    # add additional cmdline switches 
+    if [ ! -z "${CONANEXILES_CMDSWITCHES}" ]; then
+        sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_CMDSWITCHES}/" -i "${_target}"
+    fi
+}
+
 setup_bashrc() {
     cat >> /bash.bashrc <<EOF
 
@@ -38,7 +61,10 @@ EOF
 }
 
 setup_server_config_first_time() {
-   
+
+    # Check if instance nanme given
+    [ ! -z "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
 	mkdir -p "${_config_folder}" && \
@@ -239,11 +265,15 @@ function override_config() {
     fi
 }
 
+init_master_server_instance
+init_supervisor_conanexiles_cmd
 
 grep "${_bashrc_tag_start}" /etc/bash.bashrc > /dev/null
 [[ $? != 0 ]] && setup_bashrc
 
+# Initial Installation
 steamcmd_setup
+
 setup_server_config_first_time
 
 override_config
