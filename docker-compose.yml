@@ -14,6 +14,7 @@ services:
       - "CONANEXILES_Game_RconPlugin_RconPassword=REDACTED"
       - "CONANEXILES_Game_RconPlugin_RconPort=25575"
       - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
+      - "DISCORD_WEBHOOK=https://discordapp.com/api/webhooks/aaa/bbb"
     ports:
         - 7777:7777/udp
         - 7778:7778/udp

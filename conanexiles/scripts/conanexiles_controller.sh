@@ -34,6 +34,16 @@ check_server_running() {
     fi
 }
 
+function start_discord_chatbot() {
+    supervisorctl status conan-exiles-discord-chatbot | grep RUNNING > /dev/null
+    [[ $? != 0 ]] && supervisorctl start conan-exiles-discord-chatbot
+}
+
+function stop_discord_chatbot() {
+    supervisorctl status conan-exiles-discord-chatbot | grep RUNNING > /dev/null
+    [[ $? == 0 ]] && supervisorctl stop conan-exiles-discord-chatbot
+}
+
 function start_server() {
     # check if server is already running to avoid running it more than one time
     if [[ `check_server_running` == 0 ]];then
@@ -42,6 +52,7 @@ function start_server() {
     else
         supervisorctl status conanexilesServer | grep RUNNING > /dev/null
         [[ $? != 0 ]] && supervisorctl start conanexilesServer
+        start_discord_chatbot
     fi
 }
 
@@ -55,6 +66,7 @@ function stop_server() {
       notifier_error "Seems I can't stop the server. Help me!"
       sleep 5
     done
+    stop_discord_chatbot
 }
 
 function update_server() {

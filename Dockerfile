@@ -20,6 +20,18 @@ RUN dpkg --add-architecture i386 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /etc/supervisor/conf.d
 
+RUN wget https://kent.dl.sourceforge.net/project/mcrcon/0.0.5/mcrcon-0.0.5-bin-linux.zip && \
+    unzip mcrcon-0.0.5-bin-linux.zip && \
+    rm mcrcon-0.0.5-bin-linux.zip && \
+    chmod +x mcrcon && \
+    mv mcrcon /usr/bin/mcrcon
+
+RUN wget https://github.com/krisberg/conan-exiles-discord-chatbot/releases/download/0.2.1/conan-exiles-discord-chatbot.zip && \
+    unzip conan-exiles-discord-chatbot.zip && \
+    rm conan-exiles-discord-chatbot.zip && \
+    chmod +x conan-exiles-discord-chatbot && \
+    mv conan-exiles-discord-chatbot /usr/bin/conan-exiles-discord-chatbot
+
 RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo $TIMEZONE > /etc/timezone
 
 ADD conanexiles/scripts/entrypoint.sh /entrypoint.sh
@@ -39,11 +51,6 @@ ADD conanexiles/lib/notifier.sh /var/lib/conanexiles/notifier.sh
 ADD conanexiles/rcon/rconcli.py /usr/bin/rconcli
 
 RUN chmod +x /usr/bin/steamcmd_setup /usr/bin/conanexiles_controller /entrypoint.sh /usr/bin/redi.sh /usr/bin/rconcli
-
-RUN wget https://kent.dl.sourceforge.net/project/mcrcon/0.0.5/mcrcon-0.0.5-bin-linux.zip && \
-    unzip mcrcon-0.0.5-bin-linux.zip && \
-    chmod +x mcrcon && \
-    mv mcrcon /usr/bin/mcrcon
 
 EXPOSE 7777/udp 27015/udp 27016/udp 37015/udp 37016/udp
 
