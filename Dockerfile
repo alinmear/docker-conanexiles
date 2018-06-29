@@ -12,13 +12,25 @@ CONANEXILES_Game_RconPlugin_RconMaxKarma=60
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y software-properties-common python-software-properties wget unzip xvfb supervisor crudini python3-pip && \
+    apt-get install -y software-properties-common python-software-properties wget unzip xvfb supervisor crudini python3-pip lib32z1 && \
     add-apt-repository ppa:wine/wine-builds && \
     apt-get update && \
     apt-get install --no-install-recommends --assume-yes winehq-staging && \
     pip3 install python-valve && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /etc/supervisor/conf.d
+
+RUN wget https://kent.dl.sourceforge.net/project/mcrcon/0.0.5/mcrcon-0.0.5-bin-linux.zip && \
+    unzip mcrcon-0.0.5-bin-linux.zip && \
+    rm mcrcon-0.0.5-bin-linux.zip && \
+    chmod +x mcrcon && \
+    mv mcrcon /usr/bin/mcrcon
+
+RUN wget https://github.com/krisberg/conan-exiles-discord-chatbot/releases/download/0.2.1/conan-exiles-discord-chatbot.zip && \
+    unzip conan-exiles-discord-chatbot.zip && \
+    rm conan-exiles-discord-chatbot.zip && \
+    chmod +x conan-exiles-discord-chatbot && \
+    mv conan-exiles-discord-chatbot /usr/bin/conan-exiles-discord-chatbot
 
 RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo $TIMEZONE > /etc/timezone
 
