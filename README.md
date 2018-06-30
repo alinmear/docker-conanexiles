@@ -150,6 +150,8 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_INSTANCENAME=exiles0"
+      - "CONANEXILES_PORT=7777"
+      - "CONANEXILES_QUERYPORT=27015"
       - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
       - "CONANEXILES_Game_RconPlugin_RconPassword=MyPassword"
       - "CONANEXILES_Game_RconPlugin_RconPort=25575"
@@ -171,10 +173,12 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_MASTERSERVER=0"
       - "CONANEXILES_INSTANCENAME=exiles1"
+      - "CONANEXILES_PORT=7779"
+      - "CONANEXILES_QUERYPORT=27017"
       - "CONANEXILES_Game_RconPlugin_RconEnabled=0" # disable rcon
     ports:
-        - 7779:7777/udp
-        - 27017:27015/udp
+        - 7779:7779/udp
+        - 27017:27017/udp
     volumes:
         - data:/conanexiles
 
@@ -186,10 +190,12 @@ services:
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_MASTERSERVER=0"
+      - "CONANEXILES_PORT=7780"
+      - "CONANEXILES_QUERYPORT=27018"
       - "CONANEXILES_INSTANCENAME=exiles2"
     ports:
-        - 7780:7777/udp
-        - 27018:27015/udp
+        - 7780:7780/udp
+        - 27018:27018/udp
     volumes:
         - data:/conanexiles
 
