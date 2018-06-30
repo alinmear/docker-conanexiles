@@ -177,7 +177,8 @@ start_slave_loop() {
                 start_shutdown_timer 10
                 stop_server
             fi
-        else
+        # NOTE: We need to check this explcitly, when redis server is not accessible
+        elif [[ "`redis_cmd_proxy redis_get_update_running`" == 1 ]]; then
             [[ `check_server_running` == 1 ]] && \
                 start_server
         fi
