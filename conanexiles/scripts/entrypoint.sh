@@ -43,6 +43,16 @@ init_supervisor_conanexiles_cmd() {
         sed -E "s/(command=wine64.*)/\1 -userdir=%(ENV_CONANEXILES_INSTANCENAME)s/" -i "${_target}"
     fi
 
+    # Port Configs
+    if [ ! -z "${CONANEXILES_PORT}" ]; then
+        sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_PORT}/" -i "${_target}"
+    fi
+
+    # QueryPort
+    if [ ! -z "${CONANEXILES_QUERYPORT}" ]; then
+        sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_QUERYPORT}/" -i "${_target}"
+    fi
+
     # add additional cmdline switches 
     if [ ! -z "${CONANEXILES_CMDSWITCHES}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_CMDSWITCHES}/" -i "${_target}"

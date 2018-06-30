@@ -54,6 +54,13 @@ ENV-VARS to Setup:
 
 - CONANEXILES_MASTERSERVER = 0/1
 - CONANEXILES_INSTANCENAME = <name>
+  - Used for the DB and config file dir of the instance (-usedir)
+- CONANEXILES_PORT = 7777
+  - Standard Port, for multiple instance you have to increment this per instance e.g. instance 0 Port 7777, instance 1 Port 7779, instance n Port 77yn
+  - NOTE: You also have to adjust the proper port mapping within the compose file
+- CONANEXILES_QUERYPORT = 27015
+  - Standard QueryPort, same as Port for multiple instances e.g. instance 0 QueryPort 27015, instance 1 QueryPort 27017, instance n QueryPort 270yn
+  - NOTE: You also have to adjust the proper port mapping within the compose file
 
 Default: CONANEXILES_MASTERSERVER = 1 (only the master server is able to make updates)
 Default: CONANEXILES_INSTANCENAME = saved (the default config folder name)
