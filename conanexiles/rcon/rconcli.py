@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 
 
 class Rconcli:
-    def __init__(self, host='localhost', port=25575, pwd=os.getenv("CONANEXILES_Game_RconPlugin_RconPassword")):
+    def __init__(self, host='localhost', port=int(os.getenv("CONANEXILES_Game_RconPlugin_RconPort",25575)), pwd=os.getenv("CONANEXILES_Game_RconPlugin_RconPassword")):
         self._host = host
         self._port = port
         self._pwd = pwd
