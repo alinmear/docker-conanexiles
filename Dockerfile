@@ -2,7 +2,8 @@ FROM ubuntu:xenial
 
 MAINTAINER Paul Steinlechner
 
-ENV TIMEZONE=Europe/Vienna DEBIAN_FRONTEND=noninteractive \
+ENV TIMEZONE=Europe/Vienna 
+DEBIAN_FRONTEND=noninteractive \
 CONANEXILES_MASTERSERVER=1 \
 CONANEXILES_Game_RconPlugin_RconEnabled=1 \
 CONANEXILES_Game_RconPlugin_RconPassword=Password \
@@ -20,7 +21,7 @@ RUN dpkg --add-architecture i386 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /etc/supervisor/conf.d
 
-RUN ln -snf /usr/share/zoneinfo/Europe/Vienna /etc/localtime && echo $TIMEZONE > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
 
 ADD conanexiles/scripts/entrypoint.sh /entrypoint.sh
 ADD conanexiles/installer/steamcmd_setup.sh /usr/bin/steamcmd_setup
