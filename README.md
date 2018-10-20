@@ -6,8 +6,8 @@
 [![Gitter](https://img.shields.io/gitter/room/alinmear/docker-conanexiles.svg?style=flat)](https://gitter.im/alinmear/docker-conanexiles)
 
 Features:
-* Full automatic provisioning of steam and conanexiles dedicated server
-* Autoupdate and restart of the conanexiles server (Now working, thx for contribution @kijdam) 
+* Full automatic provisioning of Steam and Conan Exiles Dedicated Server
+* Autoupdate and restart of the Conan Exiles server (Now working, thx for contribution @kijdam)
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
 * Running multiple Instances with multiple config directories
@@ -21,7 +21,7 @@ NOTE: After PR #12 i introduced versioning for this project.
 - Before the pr we have the version 0.0
 - With the new multi instance setup (#12) we have the version 1.0
 
-For Multiserver feature i added a redis instance. You can also run a single server setup without redis but there are some error msgs in the beginning of container startup; at the moment i can't avoid this, because i used a bash redis project (take a look at the submodules within the submodule folder) for communication to the redis server.
+For Multiserver feature I added a redis instance. You can also run a single server setup without redis but there are some error msgs in the beginning of container startup; at the moment I can't avoid this, because I used a bash redis project (take a look at the submodules within the submodule folder) for communication to the redis server.
 
 ## Multi Instance Setup
 
