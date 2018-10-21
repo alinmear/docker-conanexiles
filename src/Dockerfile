@@ -1,47 +1,38 @@
-FROM ubuntu:xenial
+FROM ubuntu:18.04
 
-MAINTAINER Paul Steinlechner
+LABEL maintainer="Paul Steinlechner"
 
 ENV TIMEZONE=Europe/Vienna \
-DEBIAN_FRONTEND=noninteractive \
-CONANEXILES_MASTERSERVER=1 \
-CONANEXILES_Game_RconPlugin_RconEnabled=1 \
-CONANEXILES_Game_RconPlugin_RconPassword=Password \
-CONANEXILES_Game_RconPlugin_RconPort=25575 \
-CONANEXILES_Game_RconPlugin_RconMaxKarma=60
+    DEBIAN_FRONTEND=noninteractive \
+    CONANEXILES_MASTERSERVER=1 \
+    CONANEXILES_Game_RconPlugin_RconEnabled=1 \
+    CONANEXILES_Game_RconPlugin_RconPassword=Password \
+    CONANEXILES_Game_RconPlugin_RconPort=25575 \
+    CONANEXILES_Game_RconPlugin_RconMaxKarma=60
 
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y crudini python3-pip redis-tools software-properties-common supervisor unzip wget xvfb \
+    && wget https://dl.winehq.org/wine-builds/Release.key \
+    && apt-key add Release.key \
+    && apt-add-repository 'https://dl.winehq.org/wine-builds/ubuntu/' \
+    && apt-get update \
+    && apt-get install --no-install-recommends --assume-yes winehq-staging \
+    && pip3 install python-valve \
+    && apt-get clean \
+    && rm -rf Release.key /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install -y crudini python3-pip redis-tools software-properties-common supervisor unzip wget xvfb && \
-    add-apt-repository ppa:wine/wine-builds && \
-    apt-get update && \
-    apt-get install --no-install-recommends --assume-yes winehq-staging && \
-    pip3 install python-valve && \
-    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    mkdir -p /etc/supervisor/conf.d
+COPY . ./
 
-RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime && echo $TIMEZONE > /etc/timezone
-
-ADD conanexiles/scripts/entrypoint.sh /entrypoint.sh
-ADD conanexiles/installer/steamcmd_setup.sh /usr/bin/steamcmd_setup
-ADD conanexiles/installer/install.txt /install.txt
-ADD conanexiles/scripts/conanexiles_controller.sh /usr/bin/conanexiles_controller
-
-ADD conanexiles/configs/supervisord/supervisord.conf /etc/supervisor/supervisord.conf
-ADD conanexiles/configs/supervisord/conanexiles.conf /etc/supervisor/conf.d/conanexiles.conf
-
-RUN mkdir -p /var/lib/conanexiles
-ADD conanexiles/lib/redis_cmds.sh /var/lib/conanexiles/redis_cmds.sh
-ADD conanexiles/lib/notifier.sh /var/lib/conanexiles/notifier.sh
-
-ADD conanexiles/rcon/rconcli.py /usr/bin/rconcli
-
-RUN chmod +x /usr/bin/steamcmd_setup /usr/bin/conanexiles_controller /entrypoint.sh /usr/bin/redi.sh /usr/bin/rconcli
-
+RUN ln -snf /usr/share/zoneinfo/$TIMEZONE /etc/localtime \
+    && echo $TIMEZONE > /etc/timezone \
+    && chmod +x /entrypoint.sh \
+    && cd /usr/bin/ \
+    && chmod +x conanexiles_controller rconcli steamcmd_setup
+    
 EXPOSE 7777/udp 27015/udp 27016/udp 37015/udp 37016/udp
 
 VOLUME ["/conanexiles"]
 
 ENTRYPOINT ["/entrypoint.sh"]
-cmd ["/usr/bin/supervisord"]
+CMD ["supervisord"]
