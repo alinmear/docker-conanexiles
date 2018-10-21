@@ -39,22 +39,22 @@ init_supervisor_conanexiles_cmd() {
     sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/Binaries\/Win64\/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log/" -i "${_target}"
 
     # add usedir switch if instancename given
-    if [ ! -z "${CONANEXILES_INSTANCENAME}" ]; then
+    if [ -n "${CONANEXILES_INSTANCENAME}" ]; then
         sed -E "s/(command=wine64.*)/\1 -userdir=%(ENV_CONANEXILES_INSTANCENAME)s/" -i "${_target}"
     fi
 
     # Port Configs
-    if [ ! -z "${CONANEXILES_PORT}" ]; then
+    if [ -n "${CONANEXILES_PORT}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_PORT}/" -i "${_target}"
     fi
 
     # QueryPort
-    if [ ! -z "${CONANEXILES_QUERYPORT}" ]; then
+    if [ -n "${CONANEXILES_QUERYPORT}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_QUERYPORT}/" -i "${_target}"
     fi
 
     # add additional cmdline switches 
-    if [ ! -z "${CONANEXILES_CMDSWITCHES}" ]; then
+    if [ -n "${CONANEXILES_CMDSWITCHES}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_CMDSWITCHES}/" -i "${_target}"
     fi
 }
@@ -73,7 +73,7 @@ EOF
 setup_server_config_first_time() {
 
     # Check if instance nanme given
-    [ ! -z "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+    [ -n "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
 
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
@@ -83,8 +83,8 @@ setup_server_config_first_time() {
 
     # paste default config pvp
     [ ! -d "${_config_folder}" ] && \
-	mkdir -p "${_config_folder}" && ([[ $CONANEXILES_SERVER_TYPE == "pve" ]] && \
-					     server_settings_template_pve > "${_config_folder}/ServerSettings.ini" || \
+	mkdir -p "${_config_folder}" && ( ([[ $CONANEXILES_SERVER_TYPE == "pve" ]] && \
+					     server_settings_template_pve > "${_config_folder}/ServerSettings.ini" ) || \
 						 server_settings_template_pvp > "${_config_folder}/ServerSettings.ini")
     return 0
 }
@@ -254,19 +254,19 @@ function override_config() {
     # workarround for whitespaces in env vars
     printenv | grep "$_env_variable_prefix" | grep -E "$_env_variable_filter" > /tmp/override_config.tmp
     env_arr=()
-    while read line; do
+    while read -r line; do
 	env_arr+=( "$line" )
     done < /tmp/override_config.tmp
 
     rm -f /tmp/override_config.tmp
 
-    if [[ ${#env_arr[@]} > 0 ]]; then
+    if [[ ${#env_arr[@]} -gt 0 ]]; then
 	for env_variable in "${env_arr[@]}";do
-	    filename="$(echo $env_variable | cut -d "=" -f1 | cut -d "_" -f2).ini"
-	    section=$(echo $env_variable | cut -d "=" -f1 | cut -d "_" -f3)
-	    key=$(echo $env_variable | cut -d "=" -f1 | cut -d "_" -f4)
+	    filename="$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f2).ini"
+	    section=$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f3)
+	    key=$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f4)
 	    # get value
-	    value=$(echo $env_variable | cut -d "=" -f2-)
+	    value=$(echo "$env_variable" | cut -d "=" -f2-)
 
 	    # workaround for --set problem. Otherwise crudini will create multiple entries at container startup
 	    crudini --set --existing "${_config_folder}/${filename}" "${section}" "${key}" "${value}"

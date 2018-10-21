@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 get_steamcmd_wine() {
     wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip -O /tmp/steamcmd.zip
