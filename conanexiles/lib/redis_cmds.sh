@@ -1,27 +1,29 @@
+#!/bin/bash
+
 source /var/lib/conanexiles/notifier.sh
 
-redis_set_update_running_start(){
-    echo 0 | redi.sh -s update_running -H redis
+redis_set_update_running_start() {
+    redis-cli -h redis SET update_running 0
 }
 
-redis_set_update_running_stop(){
-    echo 1 | redi.sh -s update_running -H redis
+redis_set_update_running_stop() {
+    redis-cli -h redis SET update_running 1
 }
 
-redis_get_update_running(){
-    redi.sh -g update_running -H redis
+redis_get_update_running() {
+    redis-cli -h redis --raw GET update_running
 }
 
-redis_get_initial_install_stat(){
-    redi.sh -g initial_installation -H redis
+redis_get_initial_install_stat() {
+    redis-cli -h redis GET initial_installation
 }
 
-redis_get_master_server_instance(){
-    redi.sh -g master_server_instance -H redis
+redis_get_master_server_instance() {
+    redis-cli -h redis GET master_server_instance
 }
 
-redis_set_master_server_instance(){
-    echo `hostname` | redi.sh -s master_server_instance -H redis
+redis_set_master_server_instance() {
+    redis-cli -h redis SET master_server_instance $(hostname)
 }
 
 _check_connection() {

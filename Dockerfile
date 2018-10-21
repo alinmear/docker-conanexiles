@@ -13,7 +13,7 @@ CONANEXILES_Game_RconPlugin_RconMaxKarma=60
 
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -y software-properties-common python-software-properties wget unzip xvfb supervisor crudini python3-pip && \
+    apt-get install -y crudini python3-pip redis-tools software-properties-common supervisor unzip wget xvfb && \
     add-apt-repository ppa:wine/wine-builds && \
     apt-get update && \
     apt-get install --no-install-recommends --assume-yes winehq-staging && \
@@ -30,8 +30,6 @@ ADD conanexiles/scripts/conanexiles_controller.sh /usr/bin/conanexiles_controlle
 
 ADD conanexiles/configs/supervisord/supervisord.conf /etc/supervisor/supervisord.conf
 ADD conanexiles/configs/supervisord/conanexiles.conf /etc/supervisor/conf.d/conanexiles.conf
-
-ADD conanexiles/helpers/redi.sh/redi.sh /usr/bin/redi.sh
 
 RUN mkdir -p /var/lib/conanexiles
 ADD conanexiles/lib/redis_cmds.sh /var/lib/conanexiles/redis_cmds.sh
