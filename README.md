@@ -5,27 +5,117 @@
 [![Github Forks](https://img.shields.io/github/forks/alinmear/docker-conanexiles.svg?style=flat?label=github%20forks)](https://github.com/alinmear/docker-conanexiles/)
 [![Gitter](https://img.shields.io/gitter/room/alinmear/docker-conanexiles.svg?style=flat)](https://gitter.im/alinmear/docker-conanexiles)
 
-Features:
+## Features
 * Full automatic provisioning of Steam and Conan Exiles Dedicated Server
-* Autoupdate and restart of the Conan Exiles server (Now working, thx for contribution @kijdam)
+* Autoupdate and restart of the Conan Exiles server
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
-* Running multiple Instances with multiple config directories
+* Running multiple instances with multiple config directories
 * RCON Support (Ingame Broadcast Msgs for Server events like update) --> DEFAULT ENABLED
 
+---
 
-## New Versioning introduced
+## Usage
+**READ the following sections [Storage options](#storage-options), [First Time Setup](#first-time-setup), [Multi Instance Setup](#multi-instance-setup) & [Environment Variables and Config Options](#environment-variables-and-config-options) if you have not used this image before!**
 
-NOTE: After PR #12 i introduced versioning for this project. 
+### Get started
+```
+curl -LJO https://raw.githubusercontent.com/alinmear/docker-conanexiles/master/docker-compose.yml
+docker-compose pull
+```
 
-- Before the pr we have the version 0.0
-- With the new multi instance setup (#12) we have the version 1.0
+#### Start all services (3 games services and 1 redis)
+`docker-compose up -d`
 
-For Multiserver feature I added a redis instance. You can also run a single server setup without redis but there are some error msgs in the beginning of container startup; at the moment I can't avoid this, because I used a bash redis project (take a look at the submodules within the submodule folder) for communication to the redis server.
+#### Start one game service and redis
+`docker compose up -d redis && docker compose up -d ce0`
+
+### Update image and rollout
+`docker-compose pull && docker-compose up -d`
+
+### Shutdown
+`docker-compose down`
+
+---
+
+## Create a simplified `docker-compose.yml`
+The `docker-compose.yml` file can be customized e.g. if you do not want to run several game servers.
+
+### Example
+```yaml
+version: "3.5"
+
+services:
+  ce0:
+    build: src/
+    image: alinmear/docker-conanexiles:1.2
+    restart: unless-stopped
+    environment:
+      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName=My Cool Server"
+      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
+      - "CONANEXILES_INSTANCENAME=exiles0"
+      - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
+      - "CONANEXILES_Game_RconPlugin_RconPassword=REDACTED"
+      - "CONANEXILES_Game_RconPlugin_RconPort=25575"
+      - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
+    ports:
+        - 7777:7777/udp
+        - 7778:7778/udp
+        - 27015:27015/udp
+    volumes:
+        - data:/conanexiles
+
+  redis:
+    image: redis:4-alpine
+    restart: unless-stopped
+    environment:
+      - "TZ=Europe/Vienna"
+    volumes:
+      - redis:/data/
+
+volumes:
+    data:
+    redis:
+```
+
+---
+
+## Storage options
+A persistent data storage for the configuration and game data is required.
+
+No persistance = data is gone when the container shuts down!
+
+With Docker you got two options Volumes and Bind mounts - https://docs.docker.com/storage/#more-details-about-mount-types
+
+### Volume
+
+```yaml
+    volumes:
+        - data:/conanexiles
+```
+
+### Bind mount 
+
+```yaml
+    volumes:
+        - /my-data:/conanexiles
+```
+
+---
+
+## First Time Setup
+
+### Provide a Config
+If there is a folder with configurations found at `/tmp/docker-conanexiles` this folder will be copied to the config folder of the server. This will only happen if there is no configuration already existing (the case of a clean container initialization).
+
+### Default Templates
+Use the environment variable `CONANEXILES_SERVER_TYPE=pve` to use the pve template; otherwise the pvp template will be used if no configuration has been provided.
+
+---
 
 ## Multi Instance Setup
-
-It is now possible to run multiple Server Instances with 1 Server Installation. For better understanding we have to split a conan-exiles installation into two parts: 
+It is possible to run multiple server instances with 1 Server Installation. For better understanding we have to split the conan-exiles installation into two parts: 
 
 - Binaries for running the server
 - Configurations for an instance (db, configs)
@@ -41,10 +131,10 @@ We can create an architecture like this:
 -> Instance 3 (Slave-Server)
 --> ConfigFolder3
 -> Instance n (Slave-Server)
---> ConfigFoldern
+--> ConfigFolderN
 ```
 
-The Master-Server is taking care about the binaries, more precisley keeping it up to date. If there is a new update, the master server will notify the Slave-Servers for shutting down to make the update. Afterwards the master informs the Slave-Servers to spin up again.
+The Master-Server is taking care about the binaries, more precisely keeping it up to date. If there is a new update, the master server will notify the Slave-Servers for shutting down to make the update. Afterwards the master informs the Slave-Servers to spin up again.
 
 **NOTE**: There should always be only 1 Master-Server-Instance, otherwise it could break your setup, if two master server are updating at the same time.
 
@@ -64,6 +154,8 @@ ENV-VARS to Setup:
 
 Default: CONANEXILES_MASTERSERVER = 1 (only the master server is able to make updates)
 Default: CONANEXILES_INSTANCENAME = saved (the default config folder name)
+
+---
 
 ## Environment Variables and Config Options
 A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
@@ -118,7 +210,7 @@ For now you have 2 Options to set this value. First provide at first time startu
    
 **NOTE**: If an Environment Variable is set it will override the value within the specified ini file at every container startup. If an ServerAdmin manually changes values within the game, these will be lost after container restart.
 
-###  List of separated environmnent variables:
+###  List of separated environment variables:
 
 * `CONANEXILES_SERVER_TYPE` 
 This Variable defines the profile for the first time setup at container provisioning, if no config folder has been provided.  
@@ -131,133 +223,3 @@ With this variable you are able to append switches to the exiles run command.
 
 e.g.  CONANEXILES_CMDSWITCHES="-MULTIHOME=xxx.xxx.xxx.xxx" will result in
 command=wine64 /conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log -userdir=%(ENV_CONANEXILES_INSTANCENAME)s -MULTIHOME=xxx.xxx.xxx.xxx
-
-## Usage
-
-#### Get latest image
-`docker pull alinmear/docker-conanexiles:latest`
-
-#### Create a `docker-compose.yml` with a multi instance setup
-```yaml
-version: '2'
-
-services:
-  conanexiles0:
-    image: alinmear/docker-conanexiles
-    restart: always
-    environment:
-      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-      - "CONANEXILES_INSTANCENAME=exiles0"
-      - "CONANEXILES_PORT=7777"
-      - "CONANEXILES_QUERYPORT=27015"
-      - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
-      - "CONANEXILES_Game_RconPlugin_RconPassword=MyPassword"
-      - "CONANEXILES_Game_RconPlugin_RconPort=25575"
-      - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
-
-    ports:
-        - 7777:7777/udp
-        - 7778:7778/udp
-        - 27015:27015/udp
-    volumes:
-        - data:/conanexiles
-
-  conanexiles1:
-    image: alinmear/docker-conanexiles
-    restart: always
-    environment:
-      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-      - "CONANEXILES_MASTERSERVER=0"
-      - "CONANEXILES_INSTANCENAME=exiles1"
-      - "CONANEXILES_PORT=7779"
-      - "CONANEXILES_QUERYPORT=27017"
-      - "CONANEXILES_Game_RconPlugin_RconEnabled=0" # disable rcon
-    ports:
-        - 7779:7779/udp
-        - 27017:27017/udp
-    volumes:
-        - data:/conanexiles
-
-  conanexiles2:
-    image: alinmear/docker-conanexiles
-    restart: always
-    environment:
-      - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-      - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-      - "CONANEXILES_MASTERSERVER=0"
-      - "CONANEXILES_PORT=7780"
-      - "CONANEXILES_QUERYPORT=27018"
-      - "CONANEXILES_INSTANCENAME=exiles2"
-    ports:
-        - 7780:7780/udp
-        - 27018:27018/udp
-    volumes:
-        - data:/conanexiles
-
-  redis:
-    image: redis:alpine
-    restart: always
-
-volumes:
-    data:
-        driver: local
-```
-
-#### Create a `docker-compose.yml` with a named volume
-
-```yaml
-version: '2'
-
-services:
-  conanexiles:
-    image: alinmear/docker-conanexiles
-    restart: always
-    environment:
-        - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-    ports:
-        - 7777:7777/udp
-        - 7778:7778/udp
-        - 27015:27015/udp
-    volumes:
-        - data:/conanexiles
-
-volumes:
-    data:
-        driver: local
-```
-
-#### Create a 'docker-compose.yml' with a volume mapping to host 
-
-```yaml
-version: '2'
-
-services:
-  conanexiles:
-    image: alinmear/docker-conanexiles
-    restart: always
-    environment:
-        - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
-        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName='My Cool Server'"
-        - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
-    ports:
-        - 7777:7777/udp
-        - 7778:7778/udp
-        - 27015:27015/udp
-    volumes:
-        - /my-data:/conanexiles
-```
-
-#### FirstTime Setup
-
-##### Provide a Config     
-If there is a folder with configurations found at `/tmp/docker-conanexiles` this folder will be copied to the config folder of the server. This will only happen if there is no configuration already existing (the case of a clean container initilizaton)
-
-##### Default Templates   
-Use the environment variable `CONANEXILES_SERVER_TYPE=pve` to set the pve template; everything other will be the pvp template if no configuration has been provided.
