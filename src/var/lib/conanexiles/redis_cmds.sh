@@ -26,16 +26,8 @@ redis_set_master_server_instance() {
     redis-cli -h redis SET master_server_instance $(hostname)
 }
 
-_check_connection() {
-    _host=$1
-    _port=$2
-
-    bash -c "cat < /dev/null > /dev/tcp/${_host}/${_port}" >/dev/null 2>/dev/null
-    return $?
-}
-
 redis_cmd_proxy() {
-    _check_connection redis 6379
-    [[ $? == 0 ]] && $1 || \
+    redis-cli -h redis PING > /dev/null 2> /dev/null
+    [[ $? -eq 0 ]] && $1 || \
             notifier_warn "Failed to connect to redis instance - redis:6379. Skipping redis call: ${1}"
 }
