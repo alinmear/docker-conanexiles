@@ -2,7 +2,7 @@ FROM ubuntu:xenial
 
 MAINTAINER Paul Steinlechner
 
-ENV TIMEZONE=Europe/Vienna 
+ENV TIMEZONE=Europe/Vienna \
 DEBIAN_FRONTEND=noninteractive \
 CONANEXILES_MASTERSERVER=1 \
 CONANEXILES_Game_RconPlugin_RconEnabled=1 \
