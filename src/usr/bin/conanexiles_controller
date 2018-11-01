@@ -37,7 +37,7 @@ check_server_running() {
 function start_server() {
     # check if server is already running to avoid running it more than one time
     if [[ $(check_server_running) == 0 ]];then
-        notfier_error "The server is already running. I don't want to start it twice."
+        notifier_error "The server is already running. I don't want to start it twice."
         return
     else
         supervisorctl status conanexilesServer | grep RUNNING > /dev/null
