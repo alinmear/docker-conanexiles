@@ -67,7 +67,7 @@ services:
         - data:/conanexiles
 
   redis:
-    image: redis:4-alpine
+    image: redis:5-alpine
     restart: unless-stopped
     environment:
       - "TZ=Europe/Vienna"
