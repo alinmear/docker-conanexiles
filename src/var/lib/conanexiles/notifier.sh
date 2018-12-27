@@ -1,3 +1,5 @@
+#!/bin/sh
+
 notifier_info() {
     echo ">> INFO: $1"
 }

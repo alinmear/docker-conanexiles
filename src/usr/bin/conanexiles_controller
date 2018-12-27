@@ -15,7 +15,7 @@ function get_available_build() {
     			    grep -m 1 -EB 10 "^\s+}" | grep -E "^\s+\"buildid\"\s+" | \
     			    tr '[:blank:]"' ' ' | awk '{print $2}')
 
-    echo $_build_id
+    echo "$_build_id"
 }
 
 function get_installed_build() {
@@ -23,7 +23,7 @@ function get_installed_build() {
     local _build_id=$(cat /conanexiles/steamapps/appmanifest_$APPID.acf | \
               grep -E "^\s+\"buildid\"" |  tr '[:blank:]"' ' ' | awk '{print $2}')
 
-    echo $_build_id
+    echo "$_build_id"
 }
 
 check_server_running() {
@@ -36,8 +36,8 @@ check_server_running() {
 
 function start_server() {
     # check if server is already running to avoid running it more than one time
-    if [[ `check_server_running` == 0 ]];then
-        notfier_error "The server is already running. I don't want to start it twice."
+    if [[ $(check_server_running) == 0 ]];then
+        notifier_error "The server is already running. I don't want to start it twice."
         return
     else
         supervisorctl status conanexilesServer | grep RUNNING > /dev/null
@@ -92,7 +92,7 @@ start_shutdown_timer() {
     _i=0
 
     while true; do
-        if [ $_i == $_t_val ]; then
+        if [ $_i == "$_t_val" ]; then
             break
         fi
 
@@ -130,7 +130,7 @@ function do_update() {
     local _ab=$(get_available_build)
     local _ib=$(get_installed_build)
 
-    if [[ $_ab != $_ib ]];then
+    if [[ $_ab != "$_ib" ]];then
         echo "Warning: Update seems to have failed. Installed build ($_ib) does not match available build ($_ab)."
     else
         echo "Info: Updated to build ($_ib) successfully."
@@ -143,7 +143,7 @@ function do_update() {
 
 start_master_loop() {
 
-    notifier_info "Mode: Master - Instance: `hostname`"
+    notifier_info "Mode: Master - Instance: $(hostname)"
 
     while true; do
         # if initial install/update fails try again
@@ -157,7 +157,7 @@ start_master_loop() {
         ab=$(get_available_build)
         ib=$(get_installed_build)
 
-        if [[ $ab != $ib ]];then
+        if [[ $ab != "$ib" ]];then
             notifier_info "New build available. Updating $ib -> $ab"
             do_update 0
         fi
@@ -169,17 +169,17 @@ start_master_loop() {
 
 start_slave_loop() {
 
-    notifier_info "Mode: Slave - Instance: `hostname`"
+    notifier_info "Mode: Slave - Instance: $(hostname)"
 
     while true; do
         if [[ "`redis_cmd_proxy redis_get_update_running`" == 0 ]]; then
-            if [[ `check_server_running` == 0 ]]; then
+            if [[ $(check_server_running) == 0 ]]; then
                 start_shutdown_timer 10
                 stop_server
             fi
         # NOTE: We need to check this explcitly, when redis server is not accessible
         elif [[ "`redis_cmd_proxy redis_get_update_running`" == 1 ]]; then
-            [[ `check_server_running` == 1 ]] && \
+            [[ $(check_server_running) == 1 ]] && \
                 start_server
         fi
         sleep 10
