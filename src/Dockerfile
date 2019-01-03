@@ -13,14 +13,14 @@ ENV TIMEZONE=Europe/Vienna \
 RUN dpkg --add-architecture i386 \
     && apt-get update \
     && apt-get install -y crudini python3-pip redis-tools software-properties-common supervisor unzip wget xvfb \
-    && wget https://dl.winehq.org/wine-builds/Release.key \
-    && apt-key add Release.key \
+    && wget https://dl.winehq.org/wine-builds/winehq.key \
+    && apt-key add winehq.key \
     && apt-add-repository 'https://dl.winehq.org/wine-builds/ubuntu/' \
     && apt-get update \
     && apt-get install --no-install-recommends --assume-yes winehq-staging \
     && pip3 install python-valve \
     && apt-get clean \
-    && rm -rf Release.key /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    && rm -rf winehq.key /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY . ./
 
