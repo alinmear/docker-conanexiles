@@ -113,7 +113,9 @@ function do_update() {
     if [[ $1 == 1 ]];then
         update_server
     else
-        start_shutdown_timer 15
+        # Feature Issue #36
+        [[ -z "${CONANEXILES_UPDATE_SHUTDOWN_TIMER}" ]] && CONANEXILES_UPDATE_SHUTDOWN_TIMER=15
+        start_shutdown_timer "${CONANEXILES_UPDATE_SHUTDOWN_TIMER}"
         stop_server
         # Give other instances time to shutdown
         sleep 300

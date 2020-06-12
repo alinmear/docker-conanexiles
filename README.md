@@ -223,3 +223,6 @@ With this variable you are able to append switches to the exiles run command.
 
 e.g.  CONANEXILES_CMDSWITCHES="-MULTIHOME=xxx.xxx.xxx.xxx" will result in
 command=wine64 /conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log -userdir=%(ENV_CONANEXILES_INSTANCENAME)s -MULTIHOME=xxx.xxx.xxx.xxx
+
+* `CONANEXILES_UPDATE_SHUTDOWN_TIMER`
+With this variable you can set the amount of time in minutes, the server waits to shutdown for an update.
