@@ -16,8 +16,11 @@ RUN dpkg --add-architecture i386 \
     && wget https://dl.winehq.org/wine-builds/winehq.key \
     && apt-key add winehq.key \
     && apt-add-repository 'https://dl.winehq.org/wine-builds/ubuntu/' \
+    && wget https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/Release.key \
+    && apt-key add Release.key \
+    && apt-add-repository 'deb https://download.opensuse.org/repositories/Emulators:/Wine:/Debian/xUbuntu_18.04/ ./' \
     && apt-get update \
-    && apt-get install --no-install-recommends --assume-yes winehq-staging \
+    && apt-get install --no-install-recommends --assume-yes wine-staging-i386 wine-staging libfaudio0 libasound2-plugins:i386 winehq-staging \
     && pip3 install python-valve \
     && apt-get clean \
     && rm -rf winehq.key /var/lib/apt/lists/* /tmp/* /var/tmp/*
