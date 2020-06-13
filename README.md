@@ -49,6 +49,7 @@ services:
   ce0:
     build: src/
     image: alinmear/docker-conanexiles:1.2
+    depends_on: redis
     restart: unless-stopped
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
