@@ -39,7 +39,26 @@ docker-compose pull
 ---
 
 ## Create a simplified `docker-compose.yml`
+
 The `docker-compose.yml` file can be customized e.g. if you do not want to run several game servers.
+
+**podman-compose**:
+
+``` sh
+podman-compose -f podman-compose.yml up
+
+# recreate for testing. CARE: all volumes will be removed and new created --> data will be lost
+# podman-compose -f podman-compose.yml up --force-recreate
+```
+
+
+NOTE: if you are on a system using podman instead of docker you can simply install podman-compose via:
+
+```sh
+pip3 install --user https://github.com/containers/podman-compose/archive/devel.tar.gz
+```
+
+At the moment we need to use the devel branch, because the support for volumes is only available there. Also `restart: unless-stopped` is not supported so we need to replace this with `restart: always`.
 
 ### Example
 ```yaml
@@ -48,7 +67,7 @@ version: "3.5"
 services:
   ce0:
     build: src/
-    image: alinmear/docker-conanexiles:1.2
+    image: alinmear/docker-conanexiles:latest
     depends_on: redis
     restart: unless-stopped
     environment:

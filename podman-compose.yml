@@ -6,7 +6,7 @@ services:
     image: alinmear/docker-conanexiles:latest
     depends_on:
       - redis
-    restart: unless-stopped
+    restart: always
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName=My Cool Server 1"
@@ -28,7 +28,7 @@ services:
     image: alinmear/docker-conanexiles:latest
     depends_on:
       - redis
-    restart: unless-stopped
+    restart: always
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName=My Cool Server 2"
@@ -49,7 +49,7 @@ services:
     image: alinmear/docker-conanexiles:latest
     depends_on:
       - redis
-    restart: unless-stopped
+    restart: always
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName=My Cool Server 3"
@@ -68,7 +68,7 @@ services:
 
   redis:
     image: redis:5-alpine
-    restart: unless-stopped
+    restart: always
     environment:
       - "TZ=Europe/Vienna"
     volumes:
