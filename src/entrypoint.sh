@@ -53,7 +53,7 @@ init_supervisor_conanexiles_cmd() {
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_QUERYPORT}/" -i "${_target}"
     fi
 
-    # add additional cmdline switches 
+    # add additional cmdline switches
     if [ -n "${CONANEXILES_CMDSWITCHES}" ]; then
         sed -E "s/(command=wine64.*)/\1 ${CONANEXILES_CMDSWITCHES}/" -i "${_target}"
     fi
@@ -73,7 +73,7 @@ EOF
 setup_server_config_first_time() {
 
     # Check if instance nanme given
-    [ -n "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+    [ -n "${CONANEXILES_INSTANCENAME}" ] && _config_folder="/conanexiles/ConanSandbox/Saved/${CONANEXILES_INSTANCENAME}/Config/WindowsServer"
 
     # config provided, don't override
     [ -d "${_config_folder_provided}" ] && [ ! -d "${_config_folder}" ] && \
@@ -82,7 +82,7 @@ setup_server_config_first_time() {
 	return 0 || return 1)
 
     # paste default config pvp
-    [ ! -d "${_config_folder}" ] && \
+    [ ! -f "${_config_folder}/ServerSettings.ini" ] && \
 	mkdir -p "${_config_folder}" && ( ([[ $CONANEXILES_SERVER_TYPE == "pve" ]] && \
 					     server_settings_template_pve > "${_config_folder}/ServerSettings.ini" ) || \
 						 server_settings_template_pvp > "${_config_folder}/ServerSettings.ini")
@@ -291,8 +291,16 @@ override_config
 # start Xvfb
 xvfb_display=0
 rm -rf /tmp/.X$xvfb_display-lock
-Xvfb :$xvfb_display -screen 0, 640x480x24:32 -nolisten tcp &
+Xvfb :$xvfb_display -screen 0, 1024x768x24:32 -nolisten tcp &
 export DISPLAY=:$xvfb_display
+
+mkdir -p /usr/share/wine/mono /usr/share/wine/gecko
+test -f /usr/share/wine/mono/wine-mono-5.0.0-x86.msi || wget -q http://dl.winehq.org/wine/wine-mono/5.0.0/wine-mono-5.0.0-x86.msi -O /usr/share/wine/mono/wine-mono-5.0.0-x86.msi
+test -f /usr/share/wine/gecko/wine-gecko-2.47.1-x86_64.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-x86_64.msi -O /usr/share/wine/gecko/wine-gecko-2.47.1-x86_64.msi
+test -f /usr/share/wine/gecko/wine-gecko-2.47.1-x86.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-x86.msi -O /usr/share/wine/gecko/wine-gecko-2.47.1-x86.msi
+
+wget http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt -O /usr/local/share/ca-certificates
+update-ca-certificates
 
 # start supervisord
 "$@"
