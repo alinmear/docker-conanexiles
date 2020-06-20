@@ -31,6 +31,8 @@ RUN chmod +x /usr/bin/winetricks
 
 RUN apt-get update \
     && apt-get install -y x11vnc strace cabextract
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY . ./
 
