@@ -193,6 +193,8 @@ start_master_loop() {
             echo > /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt
             for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt) ; do
                 notifier_info "Found mod $modid"
+                #Strip the carriage return used as a newline in some windows text editors
+                modid=$(echo $modid|tr -d '\r')
                 if [ -d /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid ] ; then
                     for filename in $(cd /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid && find -name "*.pak") ; do
                         filename="$(basename "$filename")"
