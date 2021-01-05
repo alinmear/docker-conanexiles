@@ -155,15 +155,17 @@ login anonymous
 force_install_dir /conanexiles
 """ > /tmp/install-mods.txt
 
+    IFS=$'\n'
     for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
         # skip any comment lines
         [[ "$modid" =~ ^#.*$ ]] && continue
 
-		# remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
+        # remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
         modid=$(echo $modid | cut -f 1 -d ' ')
 
         echo "workshop_download_item $APPID_Mods $modid" >> /tmp/install-mods.txt
     done
+    unset IFS
 
     echo "quit" >> /tmp/install-mods.txt
 }
@@ -199,6 +201,7 @@ start_master_loop() {
             cp /tmp/install-mods.txt /conanexiles/ConanSandbox/Mods/install-mods.txt
 
             echo > /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt
+            IFS=$'\n'
             for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
                 # skip any comment lines
                 [[ "$modid" =~ ^#.*$ ]] && continue
@@ -216,14 +219,17 @@ start_master_loop() {
                     done
                 fi
             done
-            if ! diff -Nq /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt >/dev/null 2>&1 ; then
+            unset IFS
+
+            bytes=$(rsync --dry-run -avr --stats --exclude "*.txt" --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
+
+            if [ $bytes != "0" ] || [ /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt -nt /conanexiles/ConanSandbox/Mods/modlist.txt ] ; then
                 diff -N /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt >&2
-                bytes=$(rsync -avr --stats --exclude mods.txt --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
-                if [ $bytes != "0" ]; then
-                    notifier_info "Mods have been updated: $bytes bytes"
-                    if [ $firstRun -eq 0 ] ; then
-                        do_update 0
-                    fi
+                bytes=$(rsync -avr --stats --exclude "*.txt" --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
+
+                notifier_info "Mods have been updated: $bytes bytes"
+                if [ $firstRun -eq 0 ] ; then
+                    do_update 0
                 fi
             fi
         fi
