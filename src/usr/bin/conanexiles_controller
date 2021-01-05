@@ -154,9 +154,17 @@ generate_modscript() {
 login anonymous
 force_install_dir /conanexiles
 """ > /tmp/install-mods.txt
-    while read line; do
-        echo "workshop_download_item $APPID_Mods $line" >> /tmp/install-mods.txt
-    done < /conanexiles/ConanSandbox/Mods/mods.txt
+
+    for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
+        # skip any comment lines
+        [[ "$modid" =~ ^#.*$ ]] && continue
+
+		# remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
+        modid=$(echo $modid | cut -f 1 -d ' ')
+
+        echo "workshop_download_item $APPID_Mods $modid" >> /tmp/install-mods.txt
+    done
+
     echo "quit" >> /tmp/install-mods.txt
 }
 
@@ -191,8 +199,15 @@ start_master_loop() {
             cp /tmp/install-mods.txt /conanexiles/ConanSandbox/Mods/install-mods.txt
 
             echo > /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt
-            for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt) ; do
+            for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
+                # skip any comment lines
+                [[ "$modid" =~ ^#.*$ ]] && continue
+
+                # remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
+                modid=$(echo $modid | cut -f 1 -d ' ')
+
                 notifier_info "Found mod $modid"
+
                 if [ -d /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid ] ; then
                     for filename in $(cd /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid && find -name "*.pak") ; do
                         filename="$(basename "$filename")"
