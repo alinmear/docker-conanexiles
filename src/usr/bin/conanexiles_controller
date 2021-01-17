@@ -225,6 +225,7 @@ start_master_loop() {
 
             if [ $bytes != "0" ] || [ /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt -nt /conanexiles/ConanSandbox/Mods/modlist.txt ] ; then
                 diff -N /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt >&2
+                cp -av /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt
                 bytes=$(rsync -avr --stats --exclude "*.txt" --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
 
                 notifier_info "Mods have been updated: $bytes bytes changed"
