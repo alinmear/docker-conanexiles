@@ -294,12 +294,15 @@ rm -rf /tmp/.X$xvfb_display-lock
 Xvfb :$xvfb_display -screen 0, 1024x768x24:32 -nolisten tcp &
 export DISPLAY=:$xvfb_display
 
-mkdir -p /usr/share/wine/mono /usr/share/wine/gecko
-test -f /usr/share/wine/mono/wine-mono-5.0.0-x86.msi || wget -q http://dl.winehq.org/wine/wine-mono/5.0.0/wine-mono-5.0.0-x86.msi -O /usr/share/wine/mono/wine-mono-5.0.0-x86.msi
-test -f /usr/share/wine/gecko/wine-gecko-2.47.1-x86_64.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-x86_64.msi -O /usr/share/wine/gecko/wine-gecko-2.47.1-x86_64.msi
-test -f /usr/share/wine/gecko/wine-gecko-2.47.1-x86.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.1/wine-gecko-2.47.1-x86.msi -O /usr/share/wine/gecko/wine-gecko-2.47.1-x86.msi
+echo -n "Using WINE: "
+wine --version
 
-wget http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt -O /usr/local/share/ca-certificates
+mkdir -p /usr/share/wine/mono /usr/share/wine/gecko
+test -f /usr/share/wine/mono/wine-mono-5.1.1-x86.msi || wget -q http://dl.winehq.org/wine/wine-mono/5.1.1/wine-mono-5.1.1-x86.msi -O /usr/share/wine/mono/wine-mono-5.1.1-x86.msi
+test -f /usr/share/wine/gecko/wine-gecko-2.47.2-x86_64.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.2/wine-gecko-2.47.2-x86_64.msi -O /usr/share/wine/gecko/wine-gecko-2.47.2-x86_64.msi
+test -f /usr/share/wine/gecko/wine-gecko-2.47.2-x86.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.2/wine-gecko-2.47.2-x86.msi -O /usr/share/wine/gecko/wine-gecko-2.47.2-x86.msi
+
+wget http://crt.usertrust.com/USERTrustRSAAddTrustCA.crt -O /usr/local/share/ca-certificates/USERTrustRSAAddTrustCA.crt
 update-ca-certificates
 
 # start supervisord
