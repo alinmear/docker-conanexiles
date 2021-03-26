@@ -8,7 +8,11 @@ ENV TIMEZONE=Europe/Vienna \
     CONANEXILES_Game_RconPlugin_RconEnabled=1 \
     CONANEXILES_Game_RconPlugin_RconPassword=Password \
     CONANEXILES_Game_RconPlugin_RconPort=25575 \
-    CONANEXILES_Game_RconPlugin_RconMaxKarma=60
+    CONANEXILES_Game_RconPlugin_RconMaxKarma=60 \
+    CONANEXILES_Engine_Core.Log_LogStreaming=Warning \
+    CONANEXILES_Engine_Core.Log_LogModController=Warning \
+    CONANEXILES_Engine_Core.Log_LoglevelActorContainer=Warning
+
 
 RUN apt-get update \
     && apt-get install -y crudini python3-pip redis-tools software-properties-common supervisor unzip curl xvfb wget rsync net-tools \
