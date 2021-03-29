@@ -66,8 +66,8 @@ function update_server() {
 
 function backup_server() {
     # backup the server db and config
-    local _src="/conanexiles/ConanSandbox/Saved"
-    local _dst="/conanexiles/ConanSandbox/Saved.$(get_installed_build)"
+    local _src="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}"
+    local _dst="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}.build-$(get_installed_build).backup"
 
     # remove backup dir if already exists (should never happen)
     if [ -d "$_dst" ]; then
