@@ -100,7 +100,10 @@ start_shutdown_timer() {
         notifier_debug "Shutdown Server in $((_t_val - _i)) minutes"
 
         if [[ ${CONANEXILES_Game_RconPlugin_RconEnabled} == 1 ]]; then
-            /usr/bin/rconcli broadcast --type shutdown --value $((_t_val - _i))
+            # Only notify at 15, 5, 1 
+            _time_left=$(( _t_val - _i ))
+            ([[ $_time_left == 15 ]] || [[ $_time_left == 5 ]] || [[ $_time_left == 1 ]]) && \
+                        /usr/bin/rconcli broadcast --type shutdown --value $_time_left
         fi
         sleep 60
         ((_i++))
