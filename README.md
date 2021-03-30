@@ -7,6 +7,7 @@
 
 ## Features
 * Full automatic provisioning of Steam and Conan Exiles Dedicated Server
+* Mod Support
 * Autoupdate and restart of the Conan Exiles server
 * Full control of every config aspect via Environment variables
 * Templates for first time setup
@@ -176,6 +177,19 @@ Default: CONANEXILES_MASTERSERVER = 1 (only the master server is able to make up
 Default: CONANEXILES_INSTANCENAME = saved (the default config folder name)
 
 ---
+
+## Mod Support
+
+Create a the folder and file `/ConanSandbox/Mods/mods.txt`. On Steamworkshop get the modid of the desired mod. e.g.:
+
+```
+# Pippi
+880454836 
+# Fashionist
+1159180273
+```
+
+After a restart the mods will be downloaded, activated and updated via steamworkshop.
 
 ## Environment Variables and Config Options
 A conan exiles dedicated server uses a lot of configuration options to influence nearly every aspect of the game logics.
