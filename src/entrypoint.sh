@@ -297,6 +297,7 @@ export DISPLAY=:$xvfb_display
 echo -n "Using WINE: "
 wine --version
 
+# TODO: Move to Dockerfile
 mkdir -p /usr/share/wine/mono /usr/share/wine/gecko
 test -f /usr/share/wine/mono/wine-mono-5.1.1-x86.msi || wget -q http://dl.winehq.org/wine/wine-mono/5.1.1/wine-mono-5.1.1-x86.msi -O /usr/share/wine/mono/wine-mono-5.1.1-x86.msi
 test -f /usr/share/wine/gecko/wine-gecko-2.47.2-x86_64.msi || wget -q http://dl.winehq.org/wine/wine-gecko/2.47.2/wine-gecko-2.47.2-x86_64.msi -O /usr/share/wine/gecko/wine-gecko-2.47.2-x86_64.msi

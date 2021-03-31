@@ -6,6 +6,15 @@ source /var/lib/conanexiles/notifier.sh
 APPID=443030
 APPID_Mods=440900
 
+# In Seconds
+SHUTDOWN_TIME_MULTI_NODE=60
+
+# MODS
+MODS_INSTALL_SCRIPT="/tmp/mods-install.sh"
+## Mods via workshop will be installed to workshop/content/$APPID_Mods
+MODS_MODLIST_FILE="/conanexiles/ConanSandbox/Mods/modlist.txt"
+
+
 function get_available_build() {
     # clear appcache (to avoid reading infos from cache)
     rm -rf /root/Steam/appcache
@@ -38,7 +47,7 @@ check_server_running() {
 function start_server() {
     # check if server is already running to avoid running it more than one time
     if [[ $(check_server_running) == 0 ]];then
-        notifier_error "The server is already running. I don't want to start it twice."
+        notifier_warn "Tried to start server. Server is already running..."
         return
     else
         supervisorctl status conanexilesServer | grep RUNNING > /dev/null
@@ -112,8 +121,10 @@ start_shutdown_timer() {
 
 function do_update() {
     # This function take either 0 for update with sleep, or 1 for update without sleep and backup
-    # stop, backup, update and start again the server
+    # logic: stop, backup, update, update mods and start again the server
+
     redis_cmd_proxy redis_set_update_running_start
+
     if [[ $1 == 1 ]];then
         update_server
     else
@@ -122,7 +133,7 @@ function do_update() {
         start_shutdown_timer "${CONANEXILES_UPDATE_SHUTDOWN_TIMER}"
         stop_server
         # Give other instances time to shutdown
-        sleep 300
+        sleep $SHUTDOWN_TIME_MULTI_NODE
         backup_server
         update_server
     fi
@@ -142,108 +153,127 @@ function do_update() {
         echo "Info: Updated to build ($_ib) successfully."
     fi
 
+    install_mods
+
+    # Notify other server that update has been finished
     redis_cmd_proxy redis_set_update_running_stop
 
     start_server
 }
 
 generate_modscript() {
-    if [ ! -f /conanexiles/ConanSandbox/Mods/mods.txt ]; then
-        return
-    fi
+    # This Function generates the script, which will be executed to install the mods
+    # NOTE: file /conanexiles/ConanSandbox/Mods/mods.txt for modids
+    # Param 1: array of modIDs
+
+    modids=("$@")
 
     echo """
 @sSteamCmdForcePlatformType windows
 login anonymous
 force_install_dir /conanexiles
-""" > /tmp/install-mods.txt
+""" > $MODS_INSTALL_SCRIPT
 
-    IFS=$'\n'
-    for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
+    for modid in "${modids[@]}" 
+    do
         # skip any comment lines
         [[ "$modid" =~ ^#.*$ ]] && continue
 
         # remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
         modid=$(echo $modid | cut -f 1 -d ' ')
 
-        echo "workshop_download_item $APPID_Mods $modid" >> /tmp/install-mods.txt
+        echo "workshop_download_item $APPID_Mods $modid" >> $MODS_INSTALL_SCRIPT
     done
-    unset IFS
 
-    echo "quit" >> /tmp/install-mods.txt
+    echo "quit" >> $MODS_INSTALL_SCRIPT
 }
+
+install_mods() {
+    #  Skip if not mods are set
+    if [ -z $CONANEXILES_MODS ]
+    then
+        notifier_info "Skipping Mods Installation. No Mods are specified via CONANEXILES_MODS"
+        return 
+    fi
+
+    # Read modids from env
+    IFS=',' read -r -a modids <<< "$CONANEXILES_MODS"
+
+    # Create the install script for installation
+    generate_modscript "${modids[@]}"
+
+    notifier_info "Installing Mods"
+    /steamcmd/steamcmd.sh +runscript $MODS_INSTALL_SCRIPT
+
+    # Create Modlist dir if not present
+    local _dir="$(dirname ${MODS_MODLIST_FILE})"
+    [ -d $_dir ] || mkdir -p $_dir
+
+    # Clean modlist to not have multiple entries
+    echo > $MODS_MODLIST_FILE
+
+    IFS=$'\n'
+
+    for modid in "${modids[@]}"
+    do
+
+        notifier_info "Got mod with id $modid"
+
+        if [ -d /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid ] 
+        then
+            for filename in $(cd /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid && find -name "*.pak")
+            do
+
+                filename="$(basename "$filename")"
+
+                notifier_info "Enabling Mod $modid. Adding pak-file for mod: '$filename'"
+                # We need the Wine Path
+                echo "Z:/conanexiles/ConanSandbox/Mods/$modid/$filename" >> $MODS_MODLIST_FILE
+
+            done
+        fi
+    done
+
+    unset IFS
+}
+
+update_check() {
+    # This function is comparing the build ids of installed vs last steam version
+    # return 0 if new build available
+    # return 1 if no new build available
+
+    ab=$(get_available_build)
+    ib=$(get_installed_build)
+
+    if [[ $ab != "$ib" ]];then
+        notifier_info "New build available: $ib -> $ab"
+        return 0
+    fi
+    return 1
+}
+
 
 start_master_loop() {
 
     notifier_info "Mode: Master - Instance: $(hostname)"
 
-    firstRun=1
+    # Inital Installation
+    if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
+    then
+        notifier_warn "No binaries found. Doing a fresh installation"
+        # Run update without sleep 
+        do_update 1
+        notifier_debug "Initial installation finished."
+    else
+        # Do initial update if new version available
+        # If there is no update, try to update mods separatly
+        (update_check && do_update 1) || (install_mods; start_server)
+    fi
+
     while true; do
-        # if initial install/update fails try again
-        if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ] ; then
-            notifier_warn "No binaries found. Doing a fresh installation"
-            do_update 1
-            notifier_debug "Initial installation finished."
-        fi
-
-        # check if an update is needed
-        ab=$(get_available_build)
-        ib=$(get_installed_build)
-
-        if [[ $ab != "$ib" ]];then
-            notifier_info "New build available. Updating $ib -> $ab"
-            do_update $firstRun
-        fi
-
-        # check if mods are updated
-        generate_modscript
-
-        if [ -f /tmp/install-mods.txt ] && ([ $firstRun -eq 1 ] || ! diff -Nq /tmp/install-mods.txt /conanexiles/ConanSandbox/Mods/install-mods.txt >/dev/null 2>&1) ; then
-            notifier_info "Updating Mods"
-            /steamcmd/steamcmd.sh +runscript /tmp/install-mods.txt
-            cp /tmp/install-mods.txt /conanexiles/ConanSandbox/Mods/install-mods.txt
-
-            echo > /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt
-            IFS=$'\n'
-            for modid in $(cat /conanexiles/ConanSandbox/Mods/mods.txt | tr -d '\r') ; do
-                # skip any comment lines
-                [[ "$modid" =~ ^#.*$ ]] && continue
-
-                # remove any suffix, i.e 12345678 # My Mod Bla => modid: 12345678
-                modid=$(echo $modid | cut -f 1 -d ' ')
-
-                notifier_info "Found mod $modid"
-
-                #Strip the carriage return used as a newline in some windows text editors
-                modid=$(echo $modid|tr -d '\r')
-
-                if [ -d /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid ] ; then
-                    for filename in $(cd /conanexiles/steamapps/workshop/content/$APPID_Mods/$modid && find -name "*.pak") ; do
-                        filename="$(basename "$filename")"
-                        notifier_info "Adding pak-file for mod $modid: '$filename'"
-                        echo "Z:/conanexiles/ConanSandbox/Mods/$modid/$filename" >> /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt
-                    done
-                fi
-            done
-            unset IFS
-
-            bytes=$(rsync --dry-run -avr --stats --exclude "*.txt" --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
-
-            if [ $bytes != "0" ] || [ /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt -nt /conanexiles/ConanSandbox/Mods/modlist.txt ] ; then
-                diff -N /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt >&2
-                cp -av /conanexiles/steamapps/workshop/content/$APPID_Mods/modlist.txt /conanexiles/ConanSandbox/Mods/modlist.txt
-                bytes=$(rsync -avr --stats --exclude "*.txt" --delete /conanexiles/steamapps/workshop/content/$APPID_Mods/* /conanexiles/ConanSandbox/Mods/ | grep "Total transferred file size:" | sed 's/Total transferred file size: \(.*\) bytes/\1/')
-
-                notifier_info "Mods have been updated: $bytes bytes changed"
-                if [ $firstRun -eq 0 ] ; then
-                    do_update 0
-                fi
-            fi
-        fi
-
-        firstRun=0
-        start_server
-        sleep 300
+        # Update with shutdown timer
+        update_check && do_update 0
+        sleep 60
     done
 }
 
@@ -265,10 +295,6 @@ start_slave_loop() {
         sleep 10
     done
 }
-
-#
-# Main loop
-#
 
 # notifier_info "Global Master Server Instance: `get_master_server_instance`"
 
