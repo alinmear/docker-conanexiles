@@ -4,16 +4,14 @@
 [![Github Stars](https://img.shields.io/github/stars/alinmear/docker-conanexiles.svg?style=flat)](https://github.com/alinmear/docker-conanexiles)
 [![Github Forks](https://img.shields.io/github/forks/alinmear/docker-conanexiles.svg?style=flat?label=github%20forks)](https://github.com/alinmear/docker-conanexiles/)
 [![Gitter](https://img.shields.io/gitter/room/alinmear/docker-conanexiles.svg?style=flat)](https://gitter.im/alinmear/docker-conanexiles)
+[![Donation](https://img.shields.io/badge/Buy%20me%20a-coffee-blue?style=flat)](https://www.paypal.com/donate?business=VGB57FGZRDEFQ&currency_code=EUR)
 
 ---
+**NOTE**
 
-[![Donation](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.paypal.com/donate?business=VGB57FGZRDEFQ&currency_code=EUR)
+Mod support reworked. Manual Installation with mods.txt File will no longer work. Use the New Env Variable. See the mods section within this readme for more informations.
 
-!!!!!
-
-NOTE: Mod support reworked. Manual Installation with mods.txt File will no longer work. Use the New Env Variable. See the mods section within this readme for more informations.
-
-!!!!!
+---
 
 ## Features
 
