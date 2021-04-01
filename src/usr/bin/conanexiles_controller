@@ -234,7 +234,7 @@ install_mods() {
 
                 notifier_info "Enabling Mod $modid. Adding pak-file for mod: '$filename'"
                 # We need the Wine Path
-                echo "Z:/conanexiles/ConanSandbox/Mods/$modid/$filename" >> $MODS_MODLIST_FILE
+                echo "Z:/conanexiles/steamapps/workshop/content/$APPID_Mods/$modid/$filename" >> $MODS_MODLIST_FILE
 
             done
         fi
