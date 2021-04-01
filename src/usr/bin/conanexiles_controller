@@ -264,18 +264,24 @@ start_master_loop() {
     if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
     then
         notifier_warn "No binaries found. Doing a fresh installation"
-        # Run update without sleep 
+        # Run update without shutdown timer
         do_update 1
         notifier_debug "Initial installation finished."
     else
         # Do initial update if new version available
         # If there is no update, try to update mods separatly
-        (update_check && do_update 1) || (install_mods; start_server)
+        (update_check && do_update 1) || install_mods
     fi
 
     while true; do
         # Update with shutdown timer
         update_check && do_update 0
+
+        # If the Server crashes we are restarting it 
+        # NOTE: We are not using supervisord to handle the restart
+        [[ $(check_server_running) == 1 ]] && \
+                start_server
+
         sleep 60
     done
 }
