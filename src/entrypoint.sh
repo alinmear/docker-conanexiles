@@ -3,7 +3,13 @@
 source /var/lib/conanexiles/redis_cmds.sh
 
 # defaults
-_config_folder="/conanexiles/ConanSandbox/Saved/Config/WindowsServer"
+if [ -z $CONANEXILES_INSTANCENAME ]
+then
+    _config_folder="/conanexiles/ConanSandbox/Saved/Config/WindowsServer"
+else
+    _config_folder="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}/Saved/Config/WindowsServer"
+fi
+
 _config_folder_provided="/tmp/docker-conanexiles"
 
 _bashrc_tag_start="# >> docker-conanexiles"
@@ -36,7 +42,7 @@ init_supervisor_conanexiles_cmd() {
     _target="/etc/supervisor/conf.d/conanexiles.conf"
 
     # set default cmdswitch
-    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/Binaries\/Win64\/ConanSandboxServer-Win64-Test.exe -nosteamclient -game -server -log/" -i "${_target}"
+    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/ConanSandboxServer.exe -nosteamclient -game -server -log/" -i "${_target}"
 
     # add usedir switch if instancename given
     if [ -n "${CONANEXILES_INSTANCENAME}" ]; then

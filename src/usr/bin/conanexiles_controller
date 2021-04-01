@@ -75,8 +75,14 @@ function update_server() {
 
 function backup_server() {
     # backup the server db and config
-    local _src="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}"
-    local _dst="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}.build-$(get_installed_build).backup"
+    if [ -z $CONANEXILES_INSTANCENAME ]
+    then
+        local _src="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}"
+        local _dst="/conanexiles/ConanSandbox/${CONANEXILES_INSTANCENAME}.build-$(get_installed_build).backup"
+    else
+        local _src="/conanexiles/ConanSandbox/Saved"
+        local _dst="/conanexiles/ConanSandbox/Saved.build-$(get_installed_build).backup"
+    fi
 
     # remove backup dir if already exists (should never happen)
     if [ -d "$_dst" ]; then
@@ -261,7 +267,7 @@ start_master_loop() {
     notifier_info "Mode: Master - Instance: $(hostname)"
 
     # Inital Installation
-    if [ ! -f "/conanexiles/ConanSandbox/Binaries/Win64/ConanSandboxServer-Win64-Test.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
+    if [ ! -f "/conanexiles/ConanSandbox/ConanSandboxServer.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
     then
         notifier_warn "No binaries found. Doing a fresh installation"
         # Run update without shutdown timer
