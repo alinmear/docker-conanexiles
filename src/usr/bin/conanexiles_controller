@@ -271,7 +271,7 @@ start_master_loop() {
     notifier_info "Mode: Master - Instance: $(hostname)"
 
     # Inital Installation
-    if [ ! -f "/conanexiles/ConanSandbox/ConanSandboxServer.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
+    if [ ! -f "/conanexiles/ConanSandboxServer.exe" ] || [ ! -f "/conanexiles/ConanSandbox/Saved/sqlite3.exe" ]
     then
         notifier_warn "No binaries found. Doing a fresh installation"
         # Run update without shutdown timer

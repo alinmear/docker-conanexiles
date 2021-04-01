@@ -42,7 +42,7 @@ init_supervisor_conanexiles_cmd() {
     _target="/etc/supervisor/conf.d/conanexiles.conf"
 
     # set default cmdswitch
-    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandbox\/ConanSandboxServer.exe -nosteamclient -game -server -log/" -i "${_target}"
+    sed -E "s/(command=wine64.*)/command=wine64 \/conanexiles\/ConanSandboxServer.exe -nosteamclient -game -server -log/" -i "${_target}"
 
     # add usedir switch if instancename given
     if [ -n "${CONANEXILES_INSTANCENAME}" ]; then
