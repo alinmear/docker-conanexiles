@@ -243,6 +243,9 @@ update_check() {
     # return 1 if no new build available
 
     ab=$(get_available_build)
+    # If we fail to retrieve the buildid return
+    [ -z $ab ] && (notifier_error "Failed to retrieve buildID from Steam. Aborting update_check"; return 1)
+
     ib=$(get_installed_build)
 
     if [[ $ab != "$ib" ]];then
