@@ -250,7 +250,11 @@ update_check() {
 
     ab=$(get_available_build)
     # If we fail to retrieve the buildid return
-    [ -z $ab ] && (notifier_error "Failed to retrieve buildID from Steam. Aborting update_check"; return 1)
+    if [ -z $ab ]
+    then
+        notifier_error "Failed to retrieve buildID from Steam. Aborting update_check" 
+        return 1
+    fi
 
     ib=$(get_installed_build)
 
