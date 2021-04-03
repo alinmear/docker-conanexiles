@@ -34,6 +34,9 @@ Scalability|\
 ServerSettings\
 "
 
+# Matchgroup 3 can be unspecific like that, because Keys have no "_" in Exiles Config
+_env_regex="CONANEXILES_([a-zA-Z]+)_(.*)_(.*)=(.*)"
+
 init_master_server_instance() {
     [[ $CONANEXILES_MASTERSERVER == 1 ]] && redis_cmd_proxy redis_set_master_server_instance
 }
@@ -268,15 +271,19 @@ function override_config() {
 
     if [[ ${#env_arr[@]} -gt 0 ]]; then
 	for env_variable in "${env_arr[@]}";do
-	    filename="$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f2).ini"
-	    section=$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f3)
-	    key=$(echo "$env_variable" | cut -d "=" -f1 | cut -d "_" -f4)
-	    # get value
-	    value=$(echo "$env_variable" | cut -d "=" -f2-)
+        if [[ $env_variable =~ $_env_regex ]]
+        then
+            filename="${BASH_REMATCH[1]}.ini"
+            section="${BASH_REMATCH[2]}"
+            key="${BASH_REMATCH[3]}"
+            value="${BASH_REMATCH[4]}"
 
-	    # workaround for --set problem. Otherwise crudini will create multiple entries at container startup
-	    crudini --set --existing "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
-	    [[ $? != 0 ]] && crudini --set "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
+            echo -e "\n>> Trying to create config in file $filename:: [$section]: $key=$value"
+
+            # workaround for --set problem. Otherwise crudini will create multiple entries at container startup
+            crudini --set --existing "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
+            [[ $? != 0 ]] && echo "Creating Config Entry" && crudini --set "${_config_folder}/${filename}" "${section}" "${key}" "${value}"
+            fi
 	done
     fi
 }
