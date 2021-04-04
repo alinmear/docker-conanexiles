@@ -44,7 +44,7 @@ docker-compose pull
 
 #### Start one game service and redis
 
-`docker compose up -d redis && docker compose up -d ce0`
+`docker compose up -d`
 
 ### Update image and rollout
 
@@ -475,10 +475,6 @@ To set e.g. the **AdminPassword** use the following logic:
 To set e.g. the **Servername and a ServerPassword**:
 `CONANEXILES_Engine_OnlineSubSystemSteam_ServerName="My Cool Server"`
 `CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword="MySecret"`
-
-To set e.g. the **Max Number of Players**:
-This will be implemented soon, because the smart logic from above won't work. The section within the Game.ini file has the value `[/script/engine.gamesession]` which cannot be addressed via an environment variable name.  
-For now you have 2 Options to set this value. First provide at first time startup a configuration or second change it manually when the container has been initialized.
 
 **NOTE**: If an Environment Variable is set it will override the value within the specified ini file at every container startup. If an ServerAdmin manually changes values within the game, these will be lost after container restart.
 
