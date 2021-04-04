@@ -9,9 +9,9 @@
 ---
 **NOTE**
 
-Mod support reworked. Manual Installation with mods.txt File will no longer work. Use the New Env Variable. See the mods section within this readme for more informations.
+Mod support reworked. Manual Installation with mods.txt File will no longer work. Use the New Env Variable. See the mods section within this readme for more informations and the list of mods we are currently using on our dedicated server - i can heavily recommend them.
 
-While configuring my server and trying to fix some shortcomings it stumbled over an overwhelming good post about server tweaks: <https://steamcommunity.com/sharedfiles/filedetails/?id=2130895654>. After enabling those settings, conanexiles feels indeed like another game. I added those configs within the example `docker-compose.yml` and also within this Readme. Hopefuly this will make you game experience alot better...
+While configuring my server and trying to fix some shortcomings i stumbled over an overwhelming good post about server tweaks: <https://steamcommunity.com/sharedfiles/filedetails/?id=2130895654>. After enabling those settings, conanexiles feels indeed like another game. I added those configs within the example `docker-compose.yml` and also within this Readme. Hopefuly this will make you game experience alot better...
 
 ---
 
@@ -85,18 +85,19 @@ version: "3.5"
 services:
   ce0:
     image: alinmear/docker-conanexiles:latest
-    depends_on: 
-      - redis
     restart: unless-stopped
     environment:
       - "CONANEXILES_ServerSettings_ServerSettings_AdminPassword=ThanksForThisSmartSolution"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerName=My Cool Server"
       - "CONANEXILES_Engine_OnlineSubSystemSteam_ServerPassword=MySecret"
       - "CONANEXILES_INSTANCENAME=exiles0"
+      # Rcon for Ingame Notfication
       - "CONANEXILES_Game_RconPlugin_RconEnabled=1"
       - "CONANEXILES_Game_RconPlugin_RconPassword=REDACTED"
       - "CONANEXILES_Game_RconPlugin_RconPort=25575"
       - "CONANEXILES_Game_RconPlugin_RconMaxKarma=60"
+      # Mods
+      - "CONANEXILES_MODS=880454836,1159180273,1389908968,1369743238,2050780234,2356146223,1701136207"
       # Very Good Defaults
       - "CONANEXILES_Engine_/script/onlinesubsystemutils.ipnetdriver_NetServerMaxTickRate=30" #INSERT A VALUE OF 30 OR HIGHER
       - "CONANEXILES_Engine_/script/onlinesubsystemutils.ipnetdriver_MaxClientRate=600000"
@@ -311,17 +312,8 @@ services:
     volumes:
         - data:/conanexiles
 
-  redis:
-    image: redis:5-alpine
-    restart: unless-stopped
-    environment:
-      - "TZ=Europe/Vienna"
-    volumes:
-      - redis:/data/
-
 volumes:
     data:
-    redis:
 ```
 
 ---
@@ -411,13 +403,23 @@ Default: CONANEXILES_INSTANCENAME = saved (the default config folder name)
 Mods can be install with the global env variable `CONANEXILES_MODS`. Specify ModIDs as comma separated list there. E.g.
 
 ```yaml
-# Pippi
-## ModID: 880454836 
+version: "3.5"
 
-# Fashionist
-# ModID: 1159180273
-
-CONANEXILES_MODS: 880454836,1159180273
+services:
+  ce0:
+    image: alinmear/docker-conanexiles:latest
+    depends_on: 
+      - redis
+    restart: unless-stopped
+    environment:
+      # Pippi: 880454836                                    # Servermanagemnt on another level
+      # Fashionist: 1159180273                              # Nice Styles, also restyle ingame
+      # Barbarian Barber: 2050780234                        # Very Nice Mod, with alot new hair styles; works well in combination with fashionist
+      # Nilfhein minimap: 1389908968                        # Very nice minimap
+      # Less Building Placement Restrictions: 1369743238    # Stop limitations of building system
+      # Lexa's Exiled Lands Improved: 2356146223            # Dual Wield (Sword, Axe) and some other nice enhacements
+      # Javelin Improved: 1701136207                        # One of the best, new javelin combos and styles, well balanced
+      - "CONANEXILES_MODS=880454836,1159180273,1389908968,1369743238,2050780234,2356146223,1701136207"
 ```
 
 NOTE: Yout can get the modids from Steamworkshop.
